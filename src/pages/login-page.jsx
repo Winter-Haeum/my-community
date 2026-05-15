@@ -73,7 +73,7 @@ function LoginPage() {
     '& .MuiInputBase-input': {
       color: isDark ? '#2A1B4A' : undefined,
       '&::placeholder': {
-        color: isDark ? '#9B8FC0' : '#B8AECF',
+        color: isDark ? '#9B8FC0' : '#C4BCD9',
         opacity: 1,
       },
     },
