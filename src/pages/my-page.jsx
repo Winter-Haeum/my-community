@@ -13,12 +13,16 @@ import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import CircularProgress from '@mui/material/CircularProgress';
 import LinearProgress from '@mui/material/LinearProgress';
+import Alert from '@mui/material/Alert';
 import CheckIcon from '@mui/icons-material/Check';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import { supabase } from '../utils/supabase';
 import useAuthStore from '../store/auth-store';
+
+const INTEREST_CATEGORIES = ['프론트엔드', 'JavaScript', 'React', 'AI 활용', '오류 해결 기록', '포트폴리오 피드백', '일상 공부 기록'];
 
 const getMonthDates = () => {
   const now = new Date();
@@ -45,6 +49,11 @@ function MyPage() {
   const [loading, setLoading] = useState(true);
   const [editGoal, setEditGoal] = useState(false);
 
+  const [editProfile, setEditProfile] = useState(false);
+  const [profileForm, setProfileForm] = useState({ nickname: '', bio: '', interest_categories: [] });
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileError, setProfileError] = useState('');
+
   const today = new Date().toISOString().split('T')[0];
   const monthDates = getMonthDates();
 
@@ -65,6 +74,46 @@ function MyPage() {
     setRecentPosts(postsRes.data || []);
     setTodayGoal(todayLogRes.data?.goal || '');
     setLoading(false);
+  };
+
+  const handleStartEditProfile = () => {
+    setProfileForm({
+      nickname: profile?.nickname || '',
+      bio: profile?.bio || '',
+      interest_categories: profile?.interest_categories || [],
+    });
+    setProfileError('');
+    setEditProfile(true);
+  };
+
+  const handleSaveProfile = async () => {
+    if (!profileForm.nickname.trim()) {
+      setProfileError('닉네임을 입력해주세요.');
+      return;
+    }
+    setProfileSaving(true);
+    setProfileError('');
+    const { error: err } = await supabase
+      .from('winterlog_users')
+      .update({
+        nickname: profileForm.nickname.trim(),
+        bio: profileForm.bio.trim(),
+        interest_categories: profileForm.interest_categories,
+      })
+      .eq('user_id', user.id);
+    setProfileSaving(false);
+    if (err) { setProfileError(err.message); return; }
+    setProfile({ ...profile, nickname: profileForm.nickname.trim(), bio: profileForm.bio.trim(), interest_categories: profileForm.interest_categories });
+    setEditProfile(false);
+  };
+
+  const toggleInterest = (cat) => {
+    setProfileForm((prev) => ({
+      ...prev,
+      interest_categories: prev.interest_categories.includes(cat)
+        ? prev.interest_categories.filter((c) => c !== cat)
+        : [...prev.interest_categories, cat],
+    }));
   };
 
   const handleAddTodo = async () => {
@@ -132,31 +181,121 @@ function MyPage() {
   return (
     <Container maxWidth='lg' sx={{ py: { xs: 2, md: 4 } }}>
       <Grid container spacing={3}>
+
+        {/* 프로필 카드 */}
         <Grid size={{ xs: 12, md: 4 }}>
-          <Paper elevation={0} sx={{ p: 3, borderRadius: 3, bgcolor: 'background.paper', textAlign: 'center' }}>
-            <Avatar sx={{ width: 80, height: 80, bgcolor: 'primary.main', fontSize: '2rem', mx: 'auto', mb: 2 }}>
-              {profile?.nickname?.[0] || user?.email?.[0]?.toUpperCase()}
-            </Avatar>
-            <Typography variant='h6' sx={{ fontWeight: 700 }}>
-              {profile?.nickname || '닉네임 없음'}
-            </Typography>
-            <Typography variant='body2' color='text.secondary' sx={{ mb: 2, mt: 0.5 }}>
-              {profile?.bio || '자기소개가 없습니다'}
-            </Typography>
-            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 4 }}>
+          <Paper elevation={0} sx={{ p: 3, borderRadius: 3, bgcolor: 'background.paper' }}>
+            {!editProfile ? (
               <Box sx={{ textAlign: 'center' }}>
-                <Typography variant='h6' sx={{ fontWeight: 700, color: 'primary.main' }}>
-                  {profile?.activity_score || 0}
+                <Avatar sx={{ width: 80, height: 80, bgcolor: 'primary.main', fontSize: '2rem', mx: 'auto', mb: 2 }}>
+                  {profile?.nickname?.[0] || user?.email?.[0]?.toUpperCase()}
+                </Avatar>
+                <Typography variant='h6' sx={{ fontWeight: 700 }}>
+                  {profile?.nickname || '닉네임 없음'}
                 </Typography>
-                <Typography variant='caption' color='text.secondary'>활동 점수</Typography>
-              </Box>
-              <Box sx={{ textAlign: 'center' }}>
-                <Typography variant='h6' sx={{ fontWeight: 700, color: 'secondary.main' }}>
-                  {studyLogs.length}
+                <Typography variant='body2' color='text.secondary' sx={{ mb: 1.5, mt: 0.5, minHeight: 24 }}>
+                  {profile?.bio || '자기소개가 없습니다'}
                 </Typography>
-                <Typography variant='caption' color='text.secondary'>공부 일수</Typography>
+
+                {profile?.interest_categories?.length > 0 && (
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, justifyContent: 'center', mb: 1.5 }}>
+                    {profile.interest_categories.map((cat) => (
+                      <Chip key={cat} label={cat} size='small'
+                        sx={{ fontSize: '0.7rem', bgcolor: '#EED8FF', color: '#6030A8', borderColor: '#C8A8F0' }} />
+                    ))}
+                  </Box>
+                )}
+
+                <Box sx={{ display: 'flex', justifyContent: 'center', gap: 4, mb: 2 }}>
+                  <Box sx={{ textAlign: 'center' }}>
+                    <Typography variant='h6' sx={{ fontWeight: 700, color: 'primary.main' }}>
+                      {profile?.activity_score || 0}
+                    </Typography>
+                    <Typography variant='caption' color='text.secondary'>활동 점수</Typography>
+                  </Box>
+                  <Box sx={{ textAlign: 'center' }}>
+                    <Typography variant='h6' sx={{ fontWeight: 700, color: 'secondary.main' }}>
+                      {studyLogs.length}
+                    </Typography>
+                    <Typography variant='caption' color='text.secondary'>공부 일수</Typography>
+                  </Box>
+                </Box>
+
+                <Button
+                  startIcon={<EditIcon sx={{ fontSize: 15 }} />}
+                  size='small'
+                  onClick={handleStartEditProfile}
+                  sx={{ color: 'text.secondary', fontSize: '0.8rem' }}
+                >
+                  프로필 수정
+                </Button>
               </Box>
-            </Box>
+            ) : (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                <Typography variant='subtitle2' sx={{ fontWeight: 700, mb: 0.5 }}>프로필 수정</Typography>
+
+                {profileError && <Alert severity='error' sx={{ py: 0.5, borderRadius: 2 }}>{profileError}</Alert>}
+
+                <Box>
+                  <Typography variant='caption' color='text.secondary' sx={{ mb: 0.5, display: 'block' }}>닉네임</Typography>
+                  <TextField
+                    size='small' fullWidth
+                    value={profileForm.nickname}
+                    onChange={(e) => setProfileForm((p) => ({ ...p, nickname: e.target.value }))}
+                    placeholder='닉네임을 입력하세요'
+                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                  />
+                </Box>
+
+                <Box>
+                  <Typography variant='caption' color='text.secondary' sx={{ mb: 0.5, display: 'block' }}>자기소개</Typography>
+                  <TextField
+                    size='small' fullWidth multiline rows={2}
+                    value={profileForm.bio}
+                    onChange={(e) => setProfileForm((p) => ({ ...p, bio: e.target.value }))}
+                    placeholder='간단한 자기소개를 입력하세요'
+                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                  />
+                </Box>
+
+                <Box>
+                  <Typography variant='caption' color='text.secondary' sx={{ mb: 0.75, display: 'block' }}>관심 카테고리</Typography>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {INTEREST_CATEGORIES.map((cat) => (
+                      <Chip
+                        key={cat} label={cat} size='small'
+                        onClick={() => toggleInterest(cat)}
+                        variant={profileForm.interest_categories.includes(cat) ? 'filled' : 'outlined'}
+                        sx={{
+                          fontSize: '0.7rem', cursor: 'pointer',
+                          bgcolor: profileForm.interest_categories.includes(cat) ? '#EED8FF' : 'transparent',
+                          color: profileForm.interest_categories.includes(cat) ? '#6030A8' : 'text.secondary',
+                          borderColor: profileForm.interest_categories.includes(cat) ? '#C8A8F0' : 'divider',
+                        }}
+                      />
+                    ))}
+                  </Box>
+                </Box>
+
+                <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
+                  <Button
+                    variant='outlined' size='small' fullWidth
+                    onClick={() => setEditProfile(false)}
+                    sx={{ borderRadius: 2 }}
+                  >
+                    취소
+                  </Button>
+                  <Button
+                    variant='contained' size='small' fullWidth
+                    onClick={handleSaveProfile}
+                    disabled={profileSaving}
+                    sx={{ bgcolor: '#A898D8', color: '#fff', borderRadius: 2, boxShadow: 'none', '&:hover': { bgcolor: '#9888C8', boxShadow: 'none' } }}
+                  >
+                    {profileSaving ? <CircularProgress size={16} sx={{ color: 'white' }} /> : '저장'}
+                  </Button>
+                </Box>
+              </Box>
+            )}
           </Paper>
         </Grid>
 
@@ -171,16 +310,14 @@ function MyPage() {
             {editGoal ? (
               <Box sx={{ display: 'flex', gap: 1 }}>
                 <TextField
-                  size='small'
-                  fullWidth
+                  size='small' fullWidth
                   value={todayGoal}
                   onChange={(e) => setTodayGoal(e.target.value)}
                   placeholder='오늘의 공부 목표를 입력하세요'
                   onKeyDown={(e) => e.key === 'Enter' && handleSaveGoal()}
                 />
                 <Button
-                  variant='contained'
-                  size='small'
+                  variant='contained' size='small'
                   onClick={handleSaveGoal}
                   sx={{ bgcolor: 'primary.main', color: 'text.primary', flexShrink: 0 }}
                 >
@@ -199,7 +336,10 @@ function MyPage() {
 
           <Paper elevation={0} sx={{ p: 3, borderRadius: 3, bgcolor: 'background.paper' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Typography variant='subtitle1' sx={{ fontWeight: 700 }}>🌿 이번달 공부 잔디</Typography>
+              <Box>
+                <Typography variant='subtitle1' sx={{ fontWeight: 700 }}>🌿 이번달 공부 잔디</Typography>
+                <Typography variant='caption' color='text.disabled'>게시글·댓글 작성일 기준</Typography>
+              </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                 <LocalFireDepartmentIcon sx={{ fontSize: 16, color: 'warning.main' }} />
                 <Typography variant='body2' sx={{ fontWeight: 600 }}>{studyLogs.length}일 활동</Typography>
@@ -209,9 +349,7 @@ function MyPage() {
               {monthDates.map((date) => (
                 <Tooltip key={date} title={date} placement='top'>
                   <Box sx={{
-                    width: 18,
-                    height: 18,
-                    borderRadius: 0.5,
+                    width: 18, height: 18, borderRadius: 0.5,
                     bgcolor: studyLogs.includes(date)
                       ? (date === today ? 'primary.main' : '#B7E4C7')
                       : 'background.default',
@@ -248,17 +386,13 @@ function MyPage() {
 
             <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
               <TextField
-                size='small'
-                fullWidth
+                size='small' fullWidth
                 value={newTodo}
                 onChange={(e) => setNewTodo(e.target.value)}
                 placeholder='할 일을 입력하세요'
                 onKeyDown={(e) => e.key === 'Enter' && handleAddTodo()}
               />
-              <IconButton
-                onClick={handleAddTodo}
-                sx={{ bgcolor: 'primary.main', borderRadius: 1, '&:hover': { bgcolor: '#C0A0D0' } }}
-              >
+              <IconButton onClick={handleAddTodo} sx={{ bgcolor: 'primary.main', borderRadius: 1, '&:hover': { bgcolor: '#C0A0D0' } }}>
                 <AddIcon />
               </IconButton>
             </Box>
@@ -266,12 +400,8 @@ function MyPage() {
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75, maxHeight: 300, overflowY: 'auto' }}>
               {todos.map((todo) => (
                 <Box key={todo.todo_id} sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 1,
-                  p: 1.25,
-                  bgcolor: 'background.default',
-                  borderRadius: 2,
+                  display: 'flex', alignItems: 'center', gap: 1,
+                  p: 1.25, bgcolor: 'background.default', borderRadius: 2,
                   opacity: todo.status === 'done' ? 0.6 : 1,
                 }}>
                   <IconButton
@@ -281,27 +411,14 @@ function MyPage() {
                       p: 0.25,
                       bgcolor: todo.status === 'done' ? 'success.main' : todo.status === 'progress' ? 'warning.main' : 'divider',
                       borderRadius: 1,
-                      '&:hover': { bgcolor: todo.status === 'done' ? 'success.dark' : 'warning.main' },
                     }}
                   >
                     <CheckIcon sx={{ fontSize: 14, color: todo.status !== 'todo' ? 'white' : 'text.disabled' }} />
                   </IconButton>
-                  <Typography
-                    variant='body2'
-                    sx={{
-                      flex: 1,
-                      fontSize: '0.85rem',
-                      textDecoration: todo.status === 'done' ? 'line-through' : 'none',
-                    }}
-                  >
+                  <Typography variant='body2' sx={{ flex: 1, fontSize: '0.85rem', textDecoration: todo.status === 'done' ? 'line-through' : 'none' }}>
                     {todo.title}
                   </Typography>
-                  <Chip
-                    label={STATUS_LABELS[todo.status]}
-                    size='small'
-                    color={STATUS_COLORS[todo.status]}
-                    sx={{ fontSize: '0.65rem', height: 18 }}
-                  />
+                  <Chip label={STATUS_LABELS[todo.status]} size='small' color={STATUS_COLORS[todo.status]} sx={{ fontSize: '0.65rem', height: 18 }} />
                   <IconButton size='small' onClick={() => handleDeleteTodo(todo.todo_id)} sx={{ p: 0.25 }}>
                     <DeleteIcon sx={{ fontSize: 14, color: 'text.disabled' }} />
                   </IconButton>
@@ -331,22 +448,15 @@ function MyPage() {
                     component={Link}
                     to={`/post/${post.post_id}`}
                     sx={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      p: 1.5,
-                      bgcolor: 'background.default',
-                      borderRadius: 2,
+                      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                      p: 1.5, bgcolor: 'background.default', borderRadius: 2,
                       textDecoration: 'none',
                       '&:hover': { bgcolor: 'primary.main' },
                       transition: 'background-color 0.15s',
                     }}
                   >
-                    <Typography
-                      variant='body2'
-                      color='text.primary'
-                      sx={{ fontSize: '0.85rem', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                    >
+                    <Typography variant='body2' color='text.primary'
+                      sx={{ fontSize: '0.85rem', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {post.title}
                     </Typography>
                     <Typography variant='caption' color='text.disabled' sx={{ ml: 1, flexShrink: 0 }}>
@@ -358,6 +468,7 @@ function MyPage() {
             </Box>
           </Paper>
         </Grid>
+
       </Grid>
     </Container>
   );

@@ -131,7 +131,7 @@ function PostDetailPage() {
   const [userReactions, setUserReactions] = useState({ liked: false, bookmarked: false });
   const [error, setError] = useState('');
 
-  const isAdmin = user?.email === ADMIN_EMAIL;
+  const isAdmin = user?.email?.trim().toLowerCase() === ADMIN_EMAIL.toLowerCase();
   const isAuthor = user && post && user.id === post.user_id;
   const isNotice = post?.category === '공지사항';
   const canEdit = isAuthor || (isAdmin && isNotice);
@@ -152,9 +152,7 @@ function PostDetailPage() {
     setPost(data);
     setLoading(false);
     if (data) {
-      supabase.from('winterlog_posts')
-        .update({ view_count: (data.view_count || 0) + 1 })
-        .eq('post_id', id);
+      supabase.rpc('increment_view_count', { p_post_id: id });
     }
   };
 
@@ -203,25 +201,22 @@ function PostDetailPage() {
 
   const handleReaction = async (type) => {
     if (!user) return navigate('/login');
-    const fieldMap = { like: 'like_count' };
-    const stateKey = { like: 'liked' }[type];
-    const isActive = userReactions[stateKey];
+    const wasLiked = userReactions.liked;
 
-    if (isActive) {
-      await supabase.from('winterlog_post_reactions')
-        .delete().eq('post_id', id).eq('user_id', user.id).eq('reaction_type', type);
-      await supabase.from('winterlog_posts')
-        .update({ [fieldMap[type]]: Math.max(0, (post[fieldMap[type]] || 0) - 1) })
-        .eq('post_id', id);
-    } else {
-      await supabase.from('winterlog_post_reactions')
-        .insert({ post_id: id, user_id: user.id, reaction_type: type });
-      await supabase.from('winterlog_posts')
-        .update({ [fieldMap[type]]: (post[fieldMap[type]] || 0) + 1 })
-        .eq('post_id', id);
+    // 즉시 UI 반영 (optimistic update)
+    setUserReactions((prev) => ({ ...prev, liked: !wasLiked }));
+    setPost((prev) => ({ ...prev, like_count: Math.max(0, (prev.like_count || 0) + (wasLiked ? -1 : 1)) }));
+
+    const { error: rpcError } = await supabase.rpc('toggle_post_reaction', {
+      p_post_id: id,
+      p_reaction_type: type,
+    });
+
+    if (rpcError) {
+      // 실패 시 롤백
+      setUserReactions((prev) => ({ ...prev, liked: wasLiked }));
+      setPost((prev) => ({ ...prev, like_count: Math.max(0, (prev.like_count || 0) + (wasLiked ? 1 : -1)) }));
     }
-    fetchPost();
-    fetchUserReactions();
   };
 
   const handleBookmark = async () => {
@@ -257,9 +252,21 @@ function PostDetailPage() {
       content: newComment,
     });
     if (err) { setError(err.message); return; }
-    await supabase.from('winterlog_posts')
-      .update({ comment_count: (post.comment_count || 0) + 1 })
-      .eq('post_id', id);
+    await supabase.rpc('update_comment_count', { p_post_id: id, p_delta: 1 });
+
+    // 댓글 작성 → 공부 활동 기록
+    const today = new Date().toISOString().split('T')[0];
+    const { data: existingLog } = await supabase
+      .from('winterlog_study_logs')
+      .select('log_id')
+      .eq('user_id', user.id)
+      .eq('study_date', today)
+      .single();
+    if (!existingLog) {
+      await supabase.from('winterlog_study_logs')
+        .insert({ user_id: user.id, study_date: today, post_count: 0 });
+    }
+
     setNewComment('');
     fetchComments();
     fetchPost();
@@ -298,7 +305,9 @@ function PostDetailPage() {
             {post.winterlog_users?.nickname?.[0]}
           </Avatar>
           <Box>
-            <Typography variant='body2' sx={{ fontWeight: 600 }}>{post.winterlog_users?.nickname}</Typography>
+            <Typography variant='body2' sx={{ fontWeight: 600 }}>
+            {isNotice ? 'Winter Log' : post.winterlog_users?.nickname}
+          </Typography>
             <Typography variant='caption' color='text.secondary'>{formatDate(post.created_at)}</Typography>
           </Box>
         </Box>

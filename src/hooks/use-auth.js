@@ -6,20 +6,9 @@ export function useAuth() {
   const { setUser, setProfile, signOut } = useAuthStore();
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session?.user) {
-        setUser(session.user);
-        const { data: profile } = await supabase
-          .from('winterlog_users')
-          .select('*')
-          .eq('user_id', session.user.id)
-          .single();
-        setProfile(profile);
-      }
-    });
-
+    // getSession + onAuthStateChange 중복 호출 제거 → onAuthStateChange 단일 처리
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.user) {
+      if ((event === 'INITIAL_SESSION' || event === 'SIGNED_IN') && session?.user) {
         setUser(session.user);
         const { data: profile } = await supabase
           .from('winterlog_users')
