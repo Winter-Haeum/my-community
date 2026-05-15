@@ -85,7 +85,6 @@ function RegisterPage() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      background: 'linear-gradient(135deg, #EDD8FF 0%, #D8C4F8 50%, #C8D8FF 100%)',
       p: { xs: 2, md: 3 },
     }}>
       <Paper elevation={0} sx={{
@@ -148,8 +147,13 @@ function RegisterPage() {
             </Typography>
 
             <Box component='img' src={bunnyImg} alt='마스코트'
-              sx={{ width: 155, height: 155, objectFit: 'contain',
-                filter: 'drop-shadow(0 8px 24px rgba(80,40,140,0.35))' }}
+              sx={{
+                width: 145,
+                height: 145,
+                objectFit: 'contain',
+                mixBlendMode: 'multiply',
+                filter: 'drop-shadow(0 0 28px rgba(200, 150, 255, 0.85))',
+              }}
             />
           </Box>
         )}
@@ -167,7 +171,12 @@ function RegisterPage() {
         }}>
           {isSmall && (
             <Box sx={{ textAlign: 'center', mb: 2 }}>
-              <Box component='img' src={bunnyImg} alt='마스코트' sx={{ width: 70, height: 70 }} />
+              <Box component='img' src={bunnyImg} alt='마스코트' sx={{
+                width: 64,
+                height: 64,
+                mixBlendMode: 'multiply',
+                filter: 'drop-shadow(0 0 16px rgba(155, 100, 230, 0.7))',
+              }} />
             </Box>
           )}
 

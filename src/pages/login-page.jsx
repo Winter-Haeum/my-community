@@ -67,7 +67,6 @@ function LoginPage() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      background: 'linear-gradient(135deg, #EDD8FF 0%, #D8C4F8 50%, #C8D8FF 100%)',
       p: { xs: 2, md: 3 },
     }}>
       <Paper elevation={0} sx={{
@@ -155,10 +154,11 @@ function LoginPage() {
               src={bunnyImg}
               alt='Winter Log 마스코트'
               sx={{
-                width: 180,
-                height: 180,
+                width: 160,
+                height: 160,
                 objectFit: 'contain',
-                filter: 'drop-shadow(0 8px 24px rgba(80,40,140,0.35))',
+                mixBlendMode: 'multiply',
+                filter: 'drop-shadow(0 0 28px rgba(200, 150, 255, 0.85))',
               }}
             />
 
@@ -187,7 +187,12 @@ function LoginPage() {
           {/* 모바일에서만 보이는 로고 */}
           {isSmall && (
             <Box sx={{ textAlign: 'center', mb: 3 }}>
-              <Box component='img' src={bunnyImg} alt='마스코트' sx={{ width: 80, height: 80 }} />
+              <Box component='img' src={bunnyImg} alt='마스코트' sx={{
+                width: 72,
+                height: 72,
+                mixBlendMode: 'multiply',
+                filter: 'drop-shadow(0 0 16px rgba(155, 100, 230, 0.7))',
+              }} />
             </Box>
           )}
 

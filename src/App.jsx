@@ -13,6 +13,8 @@ import PostListPage from './pages/post-list-page';
 import PostDetailPage from './pages/post-detail-page';
 import PostWritePage from './pages/post-write-page';
 import MyPage from './pages/my-page';
+import bgLight from './assets/bg-light.png';
+import bgDark from './assets/bg-dark.png';
 
 function AppRoutes() {
   useAuth();
@@ -21,13 +23,13 @@ function AppRoutes() {
   return (
     <Box sx={{
       minHeight: '100vh',
-      bgcolor: 'background.default',
       display: 'flex',
       flexDirection: 'column',
-      background: themeMode === 'dark'
-        ? 'linear-gradient(180deg, #0A0518 0%, #120830 30%, #1A0A40 60%, #0E0628 100%)'
-        : undefined,
+      backgroundImage: `url(${themeMode === 'dark' ? bgDark : bgLight})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center top',
       backgroundAttachment: 'fixed',
+      backgroundRepeat: 'no-repeat',
     }}>
       <Header />
       <Box sx={{ flex: 1 }}>
