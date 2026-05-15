@@ -18,7 +18,7 @@ import { supabase } from '../utils/supabase';
 import useAuthStore from '../store/auth-store';
 
 const SORT_OPTIONS = [
-  { value: 'new', label: '🆕 새글' },
+  { value: 'new', label: '✨ 새글' },
   { value: 'hot', label: '🔥 핫' },
   { value: 'top', label: '⭐ 탑' },
 ];
@@ -93,11 +93,12 @@ function PostListPage() {
                   variant={sort === opt.value ? 'contained' : 'outlined'}
                   size='small'
                   sx={{
-                    bgcolor: sort === opt.value ? 'primary.main' : 'transparent',
-                    color: sort === opt.value ? 'text.primary' : 'text.secondary',
-                    borderColor: 'divider',
+                    bgcolor: sort === opt.value ? '#EED8FF' : 'transparent',
+                    color: sort === opt.value ? '#6030A8' : 'text.secondary',
+                    borderColor: sort === opt.value ? '#C8A8F0' : 'divider',
                     borderRadius: 3,
                     px: 2,
+                    fontWeight: sort === opt.value ? 600 : 400,
                   }}
                 >
                   {opt.label}
@@ -130,13 +131,17 @@ function PostListPage() {
             </Box>
           ) : posts.length === 0 ? (
             <Box sx={{ textAlign: 'center', py: 6 }}>
-              <Box component='img' src={bunnyImg} alt='마스코트' sx={{
-                width: 88,
-                height: 88,
+              <Box sx={{
+                width: 92,
+                height: 92,
+                borderRadius: 3,
+                overflow: 'hidden',
                 mb: 1.5,
-                mixBlendMode: 'multiply',
-                filter: 'drop-shadow(0 0 20px rgba(155, 100, 230, 0.7))',
-              }} />
+                boxShadow: '0 4px 24px rgba(155, 100, 230, 0.35)',
+                display: 'inline-block',
+              }}>
+                <Box component='img' src={bunnyImg} alt='마스코트' sx={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
+              </Box>
               <Typography variant='h6' color='text.secondary' sx={{ fontWeight: 600 }}>아직 게시글이 없어요</Typography>
               <Typography variant='body2' color='text.disabled' sx={{ mt: 0.5 }}>
                 첫 번째 글을 작성해보세요! 🌱

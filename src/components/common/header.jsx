@@ -61,6 +61,21 @@ function Header() {
           ❄️ Winter Log
         </Typography>
 
+        <Button
+          component={Link}
+          to='/guestbook'
+          size='small'
+          sx={{
+            color: 'text.secondary',
+            fontSize: '0.8rem',
+            display: { xs: 'none', md: 'flex' },
+            minWidth: 'auto',
+            px: 1,
+          }}
+        >
+          ✉️ 방명록
+        </Button>
+
         <Box sx={{
           flex: 1,
           maxWidth: 380,

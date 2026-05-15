@@ -149,18 +149,20 @@ function LoginPage() {
             </Typography>
 
             {/* 토끼 캐릭터 */}
-            <Box
-              component='img'
-              src={bunnyImg}
-              alt='Winter Log 마스코트'
-              sx={{
-                width: 160,
-                height: 160,
-                objectFit: 'contain',
-                mixBlendMode: 'multiply',
-                filter: 'drop-shadow(0 0 28px rgba(200, 150, 255, 0.85))',
-              }}
-            />
+            <Box sx={{
+              width: 158,
+              height: 158,
+              borderRadius: '50%',
+              overflow: 'hidden',
+              bgcolor: 'rgba(255,255,255,0.14)',
+              boxShadow: '0 0 0 8px rgba(255,255,255,0.08), 0 8px 40px rgba(80, 30, 160, 0.45)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+              <Box component='img' src={bunnyImg} alt='Winter Log 마스코트'
+                sx={{ width: '90%', height: '90%', objectFit: 'contain' }} />
+            </Box>
 
             {/* 하단 포인트 */}
             <Box sx={{
@@ -187,12 +189,19 @@ function LoginPage() {
           {/* 모바일에서만 보이는 로고 */}
           {isSmall && (
             <Box sx={{ textAlign: 'center', mb: 3 }}>
-              <Box component='img' src={bunnyImg} alt='마스코트' sx={{
+              <Box sx={{
                 width: 72,
                 height: 72,
-                mixBlendMode: 'multiply',
-                filter: 'drop-shadow(0 0 16px rgba(155, 100, 230, 0.7))',
-              }} />
+                borderRadius: '50%',
+                overflow: 'hidden',
+                bgcolor: 'rgba(200,180,245,0.2)',
+                boxShadow: '0 4px 20px rgba(155, 100, 230, 0.35)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                <Box component='img' src={bunnyImg} alt='마스코트' sx={{ width: '90%', height: '90%', objectFit: 'contain' }} />
+              </Box>
             </Box>
           )}
 

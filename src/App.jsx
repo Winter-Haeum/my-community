@@ -13,6 +13,7 @@ import PostListPage from './pages/post-list-page';
 import PostDetailPage from './pages/post-detail-page';
 import PostWritePage from './pages/post-write-page';
 import MyPage from './pages/my-page';
+import GuestbookPage from './pages/guestbook-page';
 import bgLight from './assets/bg-light.png';
 import bgDark from './assets/bg-dark.png';
 
@@ -40,6 +41,7 @@ function AppRoutes() {
           <Route path='/post/:id' element={<PostDetailPage />} />
           <Route path='/write' element={user ? <PostWritePage /> : <Navigate to='/login' replace />} />
           <Route path='/my' element={user ? <MyPage /> : <Navigate to='/login' replace />} />
+          <Route path='/guestbook' element={<GuestbookPage />} />
           <Route path='*' element={<Navigate to='/' replace />} />
         </Routes>
       </Box>

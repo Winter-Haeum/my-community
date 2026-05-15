@@ -29,12 +29,16 @@ function SidebarRight({ topPosts = [] }) {
       <Paper elevation={0} sx={{
         p: 2.5,
         borderRadius: 3,
-        background: 'linear-gradient(135deg, #C4A8E8 0%, #A888CC 60%, #9070B8 100%)',
+        background: 'linear-gradient(135deg, rgba(248, 236, 255, 0.88) 0%, rgba(232, 218, 255, 0.78) 100%)',
+        backdropFilter: 'blur(10px)',
+        WebkitBackdropFilter: 'blur(10px)',
+        border: '1px solid rgba(200, 175, 245, 0.45)',
+        boxShadow: '0 4px 20px rgba(155, 100, 220, 0.12)',
       }}>
-        <Typography variant='h6' sx={{ fontWeight: 700, color: '#FFFFFF', mb: 1, fontSize: '1rem' }}>
+        <Typography variant='h6' sx={{ fontWeight: 700, color: '#5828A0', mb: 1, fontSize: '1rem' }}>
           ❄️ Winter Log
         </Typography>
-        <Typography variant='body2' sx={{ color: 'rgba(255,255,255,0.85)', lineHeight: 1.6, fontSize: '0.8rem' }}>
+        <Typography variant='body2' sx={{ color: '#7848B8', lineHeight: 1.6, fontSize: '0.8rem' }}>
           프론트엔드 공부, AI 활용, 성장 기록을 공유하는 감성 커뮤니티입니다.
           개발 입문자들이 함께 성장하는 공간이에요 🌱
         </Typography>

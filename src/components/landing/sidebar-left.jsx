@@ -58,8 +58,9 @@ function SidebarLeft() {
                   borderRadius: 2,
                   mb: 0.25,
                   '&.Mui-selected': {
-                    bgcolor: 'primary.main',
-                    '& .MuiListItemText-primary': { fontWeight: 700 },
+                    bgcolor: '#EED8FF',
+                    '&:hover': { bgcolor: '#E4C8FF' },
+                    '& .MuiListItemText-primary': { fontWeight: 700, color: '#6030A8' },
                   },
                 }}
               >
@@ -85,8 +86,9 @@ function SidebarLeft() {
                   borderRadius: 2,
                   mb: 0.25,
                   '&.Mui-selected': {
-                    bgcolor: 'primary.main',
-                    '& .MuiListItemText-primary': { fontWeight: 700 },
+                    bgcolor: '#EED8FF',
+                    '&:hover': { bgcolor: '#E4C8FF' },
+                    '& .MuiListItemText-primary': { fontWeight: 700, color: '#6030A8' },
                   },
                 }}
               >
