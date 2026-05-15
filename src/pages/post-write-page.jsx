@@ -114,7 +114,7 @@ function PostWritePage() {
           .select('*')
           .eq('user_id', user.id)
           .eq('study_date', today)
-          .single();
+          .maybeSingle();
 
         if (existingLog) {
           await supabase.from('winterlog_study_logs')

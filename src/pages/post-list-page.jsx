@@ -67,25 +67,28 @@ function PostListPage() {
 
   const fetchPosts = async (currentPage) => {
     setLoading(true);
-    const from = (currentPage - 1) * POSTS_PER_PAGE;
-    const to = currentPage * POSTS_PER_PAGE - 1;
+    try {
+      const from = (currentPage - 1) * POSTS_PER_PAGE;
+      const to = currentPage * POSTS_PER_PAGE - 1;
 
-    let query = supabase
-      .from('winterlog_posts')
-      .select('*, winterlog_users(nickname, profile_image)', { count: 'exact' });
+      let query = supabase
+        .from('winterlog_posts')
+        .select('*, winterlog_users(nickname, profile_image)', { count: 'exact' });
 
-    if (category) query = query.eq('category', category);
-    if (tag) query = query.eq('status_tag', tag);
-    if (q) query = query.ilike('title', `%${q}%`);
+      if (category) query = query.eq('category', category);
+      if (tag) query = query.eq('status_tag', tag);
+      if (q) query = query.ilike('title', `%${q}%`);
 
-    if (sort === 'new') query = query.order('created_at', { ascending: false });
-    else if (sort === 'top') query = query.order('like_count', { ascending: false });
-    else if (sort === 'hot') query = query.order('view_count', { ascending: false });
+      if (sort === 'new') query = query.order('created_at', { ascending: false });
+      else if (sort === 'top') query = query.order('like_count', { ascending: false });
+      else if (sort === 'hot') query = query.order('view_count', { ascending: false });
 
-    const { data, count } = await query.range(from, to);
-    setPosts(data || []);
-    setTotalCount(count || 0);
-    setLoading(false);
+      const { data, count } = await query.range(from, to);
+      setPosts(data || []);
+      setTotalCount(count || 0);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchTopPosts = async () => {

@@ -190,7 +190,7 @@ function PostDetailPage() {
       .select('bookmark_id')
       .eq('post_id', id)
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
 
     const types = (reactions || []).map((r) => r.reaction_type);
     setUserReactions({
@@ -261,7 +261,7 @@ function PostDetailPage() {
       .select('log_id')
       .eq('user_id', user.id)
       .eq('study_date', today)
-      .single();
+      .maybeSingle();
     if (!existingLog) {
       await supabase.from('winterlog_study_logs')
         .insert({ user_id: user.id, study_date: today, post_count: 0 });
