@@ -131,17 +131,8 @@ function PostListPage() {
             </Box>
           ) : posts.length === 0 ? (
             <Box sx={{ textAlign: 'center', py: 6 }}>
-              <Box sx={{
-                width: 92,
-                height: 92,
-                borderRadius: 3,
-                overflow: 'hidden',
-                mb: 1.5,
-                boxShadow: '0 4px 24px rgba(155, 100, 230, 0.35)',
-                display: 'inline-block',
-              }}>
-                <Box component='img' src={bunnyImg} alt='마스코트' sx={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
-              </Box>
+              <Box component='img' src={bunnyImg} alt='마스코트'
+                sx={{ width: 100, height: 100, objectFit: 'contain', mb: 1.5, display: 'block', mx: 'auto' }} />
               <Typography variant='h6' color='text.secondary' sx={{ fontWeight: 600 }}>아직 게시글이 없어요</Typography>
               <Typography variant='body2' color='text.disabled' sx={{ mt: 0.5 }}>
                 첫 번째 글을 작성해보세요! 🌱

@@ -113,15 +113,8 @@ function RegisterPage() {
           {/* 모바일 토끼 */}
           {isSmall && (
             <Box sx={{ textAlign: 'center', mb: 2 }}>
-              <Box sx={{
-                width: 64, height: 64, borderRadius: '50%', overflow: 'hidden',
-                bgcolor: 'rgba(200,180,245,0.2)',
-                boxShadow: '0 4px 20px rgba(155,100,230,0.35)',
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <Box component='img' src={bunnyImg} alt='마스코트'
-                  sx={{ width: '90%', height: '90%', objectFit: 'contain' }} />
-              </Box>
+              <Box component='img' src={bunnyImg} alt='마스코트'
+                sx={{ width: 80, height: 80, objectFit: 'contain' }} />
             </Box>
           )}
 
