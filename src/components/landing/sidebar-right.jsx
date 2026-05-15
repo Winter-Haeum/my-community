@@ -70,11 +70,29 @@ function SidebarRight({ topPosts = [] }) {
 
       {topPosts.length > 0 && (
         <Paper elevation={0} sx={{ p: 2, bgcolor: 'background.paper', borderRadius: 3 }}>
-          <Typography variant='subtitle2' sx={{ fontWeight: 700, mb: 1.5, color: 'primary.main' }}>
-            🔥 인기 게시글
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+            <Typography variant='subtitle2' sx={{ fontWeight: 700, color: 'primary.main' }}>
+              🔥 인기 게시글
+            </Typography>
+            <Button
+              component={RouterLink}
+              to='/?sort=top'
+              size='small'
+              sx={{
+                fontSize: '0.72rem',
+                color: 'text.disabled',
+                minWidth: 'auto',
+                px: 0.75,
+                py: 0.25,
+                lineHeight: 1.5,
+                '&:hover': { color: 'primary.main', bgcolor: 'transparent' },
+              }}
+            >
+              더보기
+            </Button>
+          </Box>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-            {topPosts.slice(0, 5).map((post, i) => (
+            {topPosts.slice(0, 3).map((post, i) => (
               <Box key={post.post_id} sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
                 <Typography sx={{ color: 'primary.main', fontWeight: 700, fontSize: '0.8rem', minWidth: 16 }}>
                   {i + 1}

@@ -10,6 +10,7 @@ import ListItemText from '@mui/material/ListItemText';
 const CATEGORIES = [
   { label: '전체', value: '' },
   { label: '공지사항', value: '공지사항' },
+  { label: '🔥 인기 게시글', value: '__popular__', href: '/?sort=top' },
   { label: '프론트엔드', value: '프론트엔드' },
   { label: 'JavaScript', value: 'JavaScript' },
   { label: 'React', value: 'React' },
@@ -42,6 +43,13 @@ function SidebarLeft() {
     return `/?${params.toString()}`;
   };
 
+  const getCatLink = (cat) => cat.href || buildLink({ category: cat.value, tag: currentTag });
+
+  const isCatSelected = (cat) => {
+    if (cat.href) return sort === 'top' && !currentCategory;
+    return currentCategory === cat.value;
+  };
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, position: 'sticky', top: 80 }}>
       <Paper elevation={0} sx={{ p: 2, bgcolor: 'background.paper', borderRadius: 3 }}>
@@ -53,8 +61,8 @@ function SidebarLeft() {
             <ListItem key={cat.value} disablePadding>
               <ListItemButton
                 component={Link}
-                to={buildLink({ category: cat.value, tag: currentTag })}
-                selected={currentCategory === cat.value}
+                to={getCatLink(cat)}
+                selected={isCatSelected(cat)}
                 sx={{
                   borderRadius: 2,
                   mb: 0.25,
