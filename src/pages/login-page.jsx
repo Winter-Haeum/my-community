@@ -26,7 +26,8 @@ function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { setUser, setProfile } = useAuthStore();
+  const { setUser, setProfile, themeMode } = useAuthStore();
+  const isDark = themeMode === 'dark';
   const isSmall = useMediaQuery('(max-width:700px)');
 
   const handleLogin = async (e) => {
@@ -62,7 +63,18 @@ function LoginPage() {
     });
   };
 
-  const inputSx = { '& .MuiOutlinedInput-root': { borderRadius: 2, bgcolor: '#FAFAFE' } };
+  const inputSx = {
+    '& .MuiOutlinedInput-root': {
+      borderRadius: 2,
+      bgcolor: isDark ? '#FFFFFF' : '#FAFAFE',
+      '& fieldset': { borderColor: isDark ? '#B9A7E6' : undefined },
+      '&:hover fieldset': { borderColor: isDark ? '#9B7FD4' : undefined },
+    },
+    '& .MuiInputBase-input': {
+      color: isDark ? '#2A1B4A' : undefined,
+      '&::placeholder': { color: isDark ? '#9B8FC0' : undefined, opacity: 1 },
+    },
+  };
 
   return (
     <Box sx={{

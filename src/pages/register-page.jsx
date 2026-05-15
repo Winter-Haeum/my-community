@@ -17,6 +17,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import AuthLeftPanel from '../components/landing/auth-left-panel';
 import bunnyImg from '../assets/bunny.png';
 import { supabase } from '../utils/supabase';
+import useAuthStore from '../store/auth-store';
 
 const CATEGORIES = ['프론트엔드', 'JavaScript', 'React', 'AI 활용', '오류 해결 기록', '포트폴리오 피드백', '일상 공부 기록'];
 
@@ -34,6 +35,8 @@ const getPasswordStrength = (pw) => {
 };
 
 function RegisterPage() {
+  const { themeMode } = useAuthStore();
+  const isDark = themeMode === 'dark';
   const [form, setForm] = useState({ email: '', password: '', passwordConfirm: '', nickname: '' });
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [showPassword, setShowPassword] = useState(false);
@@ -78,7 +81,18 @@ function RegisterPage() {
     }
   };
 
-  const inputSx = { '& .MuiOutlinedInput-root': { borderRadius: 2, bgcolor: '#FAFAFE' } };
+  const inputSx = {
+    '& .MuiOutlinedInput-root': {
+      borderRadius: 2,
+      bgcolor: isDark ? '#FFFFFF' : '#FAFAFE',
+      '& fieldset': { borderColor: isDark ? '#B9A7E6' : undefined },
+      '&:hover fieldset': { borderColor: isDark ? '#9B7FD4' : undefined },
+    },
+    '& .MuiInputBase-input': {
+      color: isDark ? '#2A1B4A' : undefined,
+      '&::placeholder': { color: isDark ? '#9B8FC0' : undefined, opacity: 1 },
+    },
+  };
 
   return (
     <Box sx={{
