@@ -93,15 +93,16 @@ function PostCard({ post, onLike }) {
         </Typography>
 
         <Typography variant='body2' color='text.secondary' sx={{
+          whiteSpace: 'pre-line',
           display: '-webkit-box',
-          WebkitLineClamp: 2,
+          WebkitLineClamp: 3,
           WebkitBoxOrient: 'vertical',
           overflow: 'hidden',
           mb: 1.5,
           fontSize: '0.85rem',
           lineHeight: 1.6,
         }}>
-          {post.content?.replace(/[#*`>\[\]!]/g, '').substring(0, 120)}
+          {post.content?.replace(/[#*`>\[\]!]/g, '')}
         </Typography>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>

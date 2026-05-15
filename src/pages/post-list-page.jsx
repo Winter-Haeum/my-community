@@ -23,10 +23,27 @@ const SORT_OPTIONS = [
   { value: 'top', label: '⭐ 탑' },
 ];
 
+const POSTS_PER_PAGE = 5;
+
+const getPageNumbers = (totalPages, currentPage) => {
+  if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+  const pages = [];
+  pages.push(1);
+  if (currentPage > 3) pages.push('...');
+  for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+    pages.push(i);
+  }
+  if (currentPage < totalPages - 2) pages.push('...');
+  pages.push(totalPages);
+  return pages;
+};
+
 function PostListPage() {
   const [posts, setPosts] = useState([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [topPosts, setTopPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
   const [searchParams] = useSearchParams();
   const { user } = useAuthStore();
   const theme = useTheme();
@@ -37,19 +54,25 @@ function PostListPage() {
   const tag = searchParams.get('tag') || '';
   const q = searchParams.get('q') || '';
 
+  const totalPages = Math.ceil(totalCount / POSTS_PER_PAGE);
+
   useEffect(() => {
-    fetchPosts();
+    setPage(1);
+    fetchPosts(1);
   }, [sort, category, tag, q]);
 
   useEffect(() => {
     fetchTopPosts();
   }, []);
 
-  const fetchPosts = async () => {
+  const fetchPosts = async (currentPage) => {
     setLoading(true);
+    const from = (currentPage - 1) * POSTS_PER_PAGE;
+    const to = currentPage * POSTS_PER_PAGE - 1;
+
     let query = supabase
       .from('winterlog_posts')
-      .select('*, winterlog_users(nickname, profile_image)');
+      .select('*, winterlog_users(nickname, profile_image)', { count: 'exact' });
 
     if (category) query = query.eq('category', category);
     if (tag) query = query.eq('status_tag', tag);
@@ -59,8 +82,9 @@ function PostListPage() {
     else if (sort === 'top') query = query.order('like_count', { ascending: false });
     else if (sort === 'hot') query = query.order('view_count', { ascending: false });
 
-    const { data } = await query.limit(20);
+    const { data, count } = await query.range(from, to);
     setPosts(data || []);
+    setTotalCount(count || 0);
     setLoading(false);
   };
 
@@ -72,6 +96,28 @@ function PostListPage() {
       .limit(5);
     setTopPosts(data || []);
   };
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+    fetchPosts(newPage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const pageNumbers = getPageNumbers(totalPages, page);
+
+  const pageBtnSx = (isActive) => ({
+    minWidth: 36,
+    height: 36,
+    p: 0,
+    borderRadius: '999px',
+    border: '1px solid',
+    borderColor: isActive ? '#CDB4DB' : '#D8C7F0',
+    bgcolor: isActive ? '#CDB4DB' : 'transparent',
+    color: isActive ? '#FFFFFF' : 'text.secondary',
+    fontSize: '0.85rem',
+    fontWeight: isActive ? 600 : 400,
+    '&:hover': { bgcolor: isActive ? '#BFA8CF' : '#F1E6FF', borderColor: isActive ? '#BFA8CF' : '#C8A8F0' },
+  });
 
   return (
     <Container maxWidth='xl' sx={{ py: { xs: 2, md: 3 }, px: { xs: 1.5, md: 3 } }}>
@@ -121,7 +167,7 @@ function PostListPage() {
 
           {q && (
             <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
-              "{q}" 검색 결과 ({posts.length}개)
+              "{q}" 검색 결과 ({totalCount}개)
             </Typography>
           )}
 
@@ -139,7 +185,60 @@ function PostListPage() {
               </Typography>
             </Box>
           ) : (
-            posts.map((post) => <PostCard key={post.post_id} post={post} />)
+            <>
+              {posts.map((post) => <PostCard key={post.post_id} post={post} />)}
+
+              {/* 페이지네이션 */}
+              {totalPages > 1 && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 0.75, mt: 3, mb: 1 }}>
+                  <Button
+                    size='small'
+                    disabled={page === 1}
+                    onClick={() => handlePageChange(page - 1)}
+                    sx={{
+                      px: 1.75, height: 36,
+                      borderRadius: '999px',
+                      border: '1px solid #D8C7F0',
+                      color: 'text.secondary',
+                      fontSize: '0.8rem',
+                      '&:hover': { bgcolor: '#F1E6FF', borderColor: '#C8A8F0' },
+                      '&.Mui-disabled': { borderColor: 'divider', color: 'text.disabled' },
+                    }}
+                  >
+                    이전
+                  </Button>
+
+                  {pageNumbers.map((p, idx) =>
+                    p === '...' ? (
+                      <Typography key={`ellipsis-${idx}`} variant='body2' color='text.disabled' sx={{ px: 0.5 }}>
+                        …
+                      </Typography>
+                    ) : (
+                      <Button key={p} size='small' onClick={() => handlePageChange(p)} sx={pageBtnSx(page === p)}>
+                        {p}
+                      </Button>
+                    )
+                  )}
+
+                  <Button
+                    size='small'
+                    disabled={page === totalPages}
+                    onClick={() => handlePageChange(page + 1)}
+                    sx={{
+                      px: 1.75, height: 36,
+                      borderRadius: '999px',
+                      border: '1px solid #D8C7F0',
+                      color: 'text.secondary',
+                      fontSize: '0.8rem',
+                      '&:hover': { bgcolor: '#F1E6FF', borderColor: '#C8A8F0' },
+                      '&.Mui-disabled': { borderColor: 'divider', color: 'text.disabled' },
+                    }}
+                  >
+                    다음
+                  </Button>
+                </Box>
+              )}
+            </>
           )}
         </Grid>
 
