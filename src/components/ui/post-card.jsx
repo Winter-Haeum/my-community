@@ -6,8 +6,6 @@ import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import IconButton from '@mui/material/IconButton';
 import Avatar from '@mui/material/Avatar';
-import ThumbUpIcon from '@mui/icons-material/ThumbUp';
-import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ModeCommentOutlinedIcon from '@mui/icons-material/ModeCommentOutlined';
@@ -41,13 +39,11 @@ const formatDate = (dateStr) => {
  * Props:
  * @param {object} post - 게시글 데이터 [Required]
  * @param {function} onLike - 좋아요 핸들러 [Optional]
- * @param {function} onUpvote - 업보트 핸들러 [Optional]
- * @param {function} onDownvote - 다운보트 핸들러 [Optional]
  *
  * Example usage:
  * <PostCard post={post} onLike={handleLike} />
  */
-function PostCard({ post, onLike, onUpvote, onDownvote }) {
+function PostCard({ post, onLike }) {
   return (
     <Card sx={{
       mb: 1.5,
@@ -146,18 +142,6 @@ function PostCard({ post, onLike, onUpvote, onDownvote }) {
                 : <FavoriteBorderIcon sx={{ fontSize: 16, color: 'text.disabled' }} />}
             </IconButton>
             <Typography variant='caption' color='text.secondary'>{post.like_count || 0}</Typography>
-          </Box>
-
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
-            <IconButton size='small' onClick={() => onUpvote?.(post.post_id)} sx={{ p: 0.25 }}>
-              <ThumbUpIcon sx={{ fontSize: 14, color: post.userUpvoted ? 'primary.main' : 'text.disabled' }} />
-            </IconButton>
-            <Typography variant='caption' color='text.secondary'>
-              {(post.upvote_count || 0) - (post.downvote_count || 0)}
-            </Typography>
-            <IconButton size='small' onClick={() => onDownvote?.(post.post_id)} sx={{ p: 0.25 }}>
-              <ThumbDownIcon sx={{ fontSize: 14, color: post.userDownvoted ? 'error.main' : 'text.disabled' }} />
-            </IconButton>
           </Box>
         </Box>
       </CardContent>

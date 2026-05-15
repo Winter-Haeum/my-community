@@ -14,8 +14,6 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import ThumbUpIcon from '@mui/icons-material/ThumbUp';
-import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import ShareIcon from '@mui/icons-material/Share';
@@ -126,7 +124,7 @@ function PostDetailPage() {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(true);
-  const [userReactions, setUserReactions] = useState({ liked: false, upvoted: false, downvoted: false, bookmarked: false });
+  const [userReactions, setUserReactions] = useState({ liked: false, bookmarked: false });
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -189,16 +187,14 @@ function PostDetailPage() {
     const types = (reactions || []).map((r) => r.reaction_type);
     setUserReactions({
       liked: types.includes('like'),
-      upvoted: types.includes('upvote'),
-      downvoted: types.includes('downvote'),
       bookmarked: !!bm,
     });
   };
 
   const handleReaction = async (type) => {
     if (!user) return navigate('/login');
-    const fieldMap = { like: 'like_count', upvote: 'upvote_count', downvote: 'downvote_count' };
-    const stateKey = { like: 'liked', upvote: 'upvoted', downvote: 'downvoted' }[type];
+    const fieldMap = { like: 'like_count' };
+    const stateKey = { like: 'liked' }[type];
     const isActive = userReactions[stateKey];
 
     if (isActive) {
@@ -324,24 +320,6 @@ function PostDetailPage() {
             }}
           >
             좋아요 {post.like_count || 0}
-          </Button>
-          <Button
-            variant={userReactions.upvoted ? 'contained' : 'outlined'}
-            startIcon={<ThumbUpIcon />}
-            onClick={() => handleReaction('upvote')}
-            size='small'
-            sx={{ borderRadius: 3, bgcolor: userReactions.upvoted ? 'primary.main' : 'transparent' }}
-          >
-            업보트 {post.upvote_count || 0}
-          </Button>
-          <Button
-            variant={userReactions.downvoted ? 'contained' : 'outlined'}
-            startIcon={<ThumbDownIcon />}
-            onClick={() => handleReaction('downvote')}
-            size='small'
-            sx={{ borderRadius: 3 }}
-          >
-            다운보트 {post.downvote_count || 0}
           </Button>
           <Button
             variant={userReactions.bookmarked ? 'contained' : 'outlined'}
