@@ -1,9 +1,11 @@
+import { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import MuiLink from '@mui/material/Link';
-import { Link as RouterLink } from 'react-router-dom';
 import Button from '@mui/material/Button';
+import { Link as RouterLink } from 'react-router-dom';
+import { supabase } from '../../utils/supabase';
 
 const STUDY_QUOTES = [
   '오늘도 천천히 성장하는 중...',
@@ -25,6 +27,18 @@ const randomQuote = STUDY_QUOTES[Math.floor(Math.random() * STUDY_QUOTES.length)
  * <SidebarRight topPosts={topPosts} />
  */
 function SidebarRight({ topPosts = [] }) {
+  const [noticePosts, setNoticePosts] = useState([]);
+
+  useEffect(() => {
+    supabase
+      .from('winterlog_posts')
+      .select('post_id, title')
+      .eq('category', '공지사항')
+      .order('created_at', { ascending: true })
+      .limit(3)
+      .then(({ data }) => setNoticePosts(data || []));
+  }, []);
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, position: 'sticky', top: 80 }}>
       <Paper elevation={0} sx={{
@@ -101,11 +115,17 @@ function SidebarRight({ topPosts = [] }) {
             더보기
           </Button>
         </Box>
-        <Box component='ul' sx={{ m: 0, pl: 2.5 }}>
-          {['서로 존중하는 커뮤니티를 만들어요', '공부 기록을 자유롭게 공유해요', '질문은 언제든지 환영합니다 🙌'].map((text) => (
-            <Typography key={text} component='li' variant='body2' color='text.secondary' sx={{ fontSize: '0.8rem', lineHeight: 1.8 }}>
-              {text}
-            </Typography>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+          {noticePosts.map((post) => (
+            <MuiLink
+              key={post.post_id}
+              component={RouterLink}
+              to={`/post/${post.post_id}`}
+              underline='hover'
+              sx={{ color: 'text.secondary', fontSize: '0.8rem', lineHeight: 1.8 }}
+            >
+              · {post.title}
+            </MuiLink>
           ))}
         </Box>
       </Paper>
