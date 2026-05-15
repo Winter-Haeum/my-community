@@ -52,9 +52,12 @@ function PostCard({ post, onLike, onUpvote, onDownvote }) {
     <Card sx={{
       mb: 1.5,
       transition: 'transform 0.15s, box-shadow 0.15s',
+      border: '1px solid',
+      borderColor: 'divider',
       '&:hover': {
         transform: 'translateY(-2px)',
-        boxShadow: '0 6px 20px rgba(205, 180, 219, 0.3)',
+        boxShadow: '0 6px 24px rgba(155, 130, 204, 0.2)',
+        borderColor: 'primary.light',
       },
     }}>
       <CardContent sx={{ p: { xs: 2, md: 2.5 }, '&:last-child': { pb: 2 } }}>

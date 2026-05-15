@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
-import Container from '@mui/material/Container';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
@@ -11,9 +10,11 @@ import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import GoogleIcon from '@mui/icons-material/Google';
+import bunnyImg from '../assets/bunny.png';
 import { supabase } from '../utils/supabase';
 import useAuthStore from '../store/auth-store';
 
@@ -25,6 +26,7 @@ function LoginPage() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { setUser, setProfile } = useAuthStore();
+  const isSmall = useMediaQuery('(max-width:700px)');
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -65,96 +67,242 @@ function LoginPage() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      background: 'linear-gradient(135deg, #FAF9F6 0%, #F3EEFF 50%, #E8F5EE 100%)',
-      py: 4,
+      background: 'linear-gradient(135deg, #EDD8FF 0%, #D8C4F8 50%, #C8D8FF 100%)',
+      p: { xs: 2, md: 3 },
     }}>
-      <Container maxWidth='xs'>
-        <Paper elevation={0} sx={{
-          p: { xs: 3, md: 5 },
-          borderRadius: 4,
-          bgcolor: 'background.paper',
-          boxShadow: '0 8px 40px rgba(205, 180, 219, 0.25)',
-        }}>
-          <Box sx={{ textAlign: 'center', mb: 4 }}>
-            <Typography variant='h4' sx={{ fontWeight: 700, color: 'primary.main', mb: 1 }}>
-              ❄️ Winter Log
-            </Typography>
-            <Typography variant='body1' color='text.secondary'>
+      <Paper elevation={0} sx={{
+        display: 'flex',
+        width: '100%',
+        maxWidth: 820,
+        minHeight: { xs: 'auto', md: 540 },
+        borderRadius: 4,
+        overflow: 'hidden',
+        boxShadow: '0 20px 60px rgba(100, 60, 180, 0.25)',
+      }}>
+        {/* ── 왼쪽 일러스트 패널 ── */}
+        {!isSmall && (
+          <Box sx={{
+            flex: '0 0 48%',
+            background: 'linear-gradient(160deg, #C4A8E8 0%, #A888CC 40%, #9070B8 70%, #7A5AA8 100%)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            p: 4,
+            position: 'relative',
+            overflow: 'hidden',
+          }}>
+            {/* 별 장식 */}
+            {[
+              { top: '8%', left: '12%', size: 6 },
+              { top: '15%', right: '18%', size: 4 },
+              { top: '30%', left: '8%', size: 3 },
+              { bottom: '35%', right: '12%', size: 5 },
+              { bottom: '18%', left: '20%', size: 3 },
+              { top: '55%', right: '8%', size: 4 },
+            ].map((s, i) => (
+              <Box key={i} sx={{
+                position: 'absolute',
+                width: s.size,
+                height: s.size,
+                borderRadius: '50%',
+                bgcolor: 'rgba(255,255,255,0.8)',
+                top: s.top,
+                left: s.left,
+                right: s.right,
+                bottom: s.bottom,
+                boxShadow: `0 0 ${s.size * 2}px rgba(255,255,255,0.6)`,
+                animation: `twinkle ${1.5 + i * 0.4}s ease-in-out infinite`,
+              }} />
+            ))}
+
+            {/* 달 */}
+            <Box sx={{
+              position: 'absolute',
+              top: 24,
+              right: 32,
+              width: 52,
+              height: 52,
+              borderRadius: '50%',
+              background: 'radial-gradient(circle at 35% 35%, #FFEEBB, #FFD580)',
+              boxShadow: '0 0 20px rgba(255, 220, 100, 0.5)',
+            }} />
+
+            {/* 텍스트 */}
+            <Typography variant='h5' sx={{
+              color: '#FFFFFF',
+              fontWeight: 700,
+              textAlign: 'center',
+              mb: 1,
+              fontSize: '1.35rem',
+              textShadow: '0 2px 8px rgba(80,40,140,0.3)',
+            }}>
               오늘도 성장하는 중 🌱
             </Typography>
-          </Box>
+            <Typography variant='body2' sx={{
+              color: 'rgba(255,255,255,0.8)',
+              textAlign: 'center',
+              mb: 3,
+              fontSize: '0.85rem',
+              lineHeight: 1.6,
+            }}>
+              기록하고, 공유하고, 함께 성장해요.
+            </Typography>
 
-          {error && <Alert severity='error' sx={{ mb: 2, borderRadius: 2 }}>{error}</Alert>}
+            {/* 토끼 캐릭터 */}
+            <Box
+              component='img'
+              src={bunnyImg}
+              alt='Winter Log 마스코트'
+              sx={{
+                width: 180,
+                height: 180,
+                objectFit: 'contain',
+                filter: 'drop-shadow(0 8px 24px rgba(80,40,140,0.35))',
+              }}
+            />
+
+            {/* 하단 포인트 */}
+            <Box sx={{
+              mt: 3,
+              display: 'flex',
+              gap: 1,
+            }}>
+              {['#FFFFFF40', '#FFFFFF80', '#FFFFFF40'].map((c, i) => (
+                <Box key={i} sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: c }} />
+              ))}
+            </Box>
+          </Box>
+        )}
+
+        {/* ── 오른쪽 폼 패널 ── */}
+        <Box sx={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          p: { xs: 3, md: 5 },
+          bgcolor: 'background.paper',
+        }}>
+          {/* 모바일에서만 보이는 로고 */}
+          {isSmall && (
+            <Box sx={{ textAlign: 'center', mb: 3 }}>
+              <Box component='img' src={bunnyImg} alt='마스코트' sx={{ width: 80, height: 80 }} />
+            </Box>
+          )}
+
+          <Typography variant='h5' sx={{
+            fontWeight: 700,
+            mb: 3,
+            color: 'text.primary',
+            fontSize: '1.5rem',
+          }}>
+            로그인
+          </Typography>
+
+          {error && (
+            <Alert severity='error' sx={{ mb: 2, borderRadius: 2, border: '1px solid #FFCDD2' }}>
+              {error}
+            </Alert>
+          )}
 
           <Box component='form' onSubmit={handleLogin} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <TextField
-              label='이메일'
-              type='email'
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder='example@winterlog.com'
-              required
-              fullWidth
-              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
-            />
-            <TextField
-              label='비밀번호'
-              type={showPassword ? 'text' : 'password'}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              fullWidth
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position='end'>
-                    <IconButton onClick={() => setShowPassword(!showPassword)} size='small'>
-                      {showPassword ? <VisibilityOffIcon fontSize='small' /> : <VisibilityIcon fontSize='small' />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
-            />
+            <Box>
+              <Typography variant='caption' sx={{ color: 'text.secondary', fontWeight: 500, mb: 0.75, display: 'block' }}>
+                이메일
+              </Typography>
+              <TextField
+                type='email'
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder='이메일을 입력하세요'
+                required
+                fullWidth
+                size='small'
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2, bgcolor: '#FAFAFE' } }}
+              />
+            </Box>
+
+            <Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.75 }}>
+                <Typography variant='caption' sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                  비밀번호
+                </Typography>
+              </Box>
+              <TextField
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder='비밀번호를 입력하세요'
+                required
+                fullWidth
+                size='small'
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position='end'>
+                      <IconButton onClick={() => setShowPassword(!showPassword)} size='small' edge='end'>
+                        {showPassword
+                          ? <VisibilityOffIcon sx={{ fontSize: 18, color: 'text.disabled' }} />
+                          : <VisibilityIcon sx={{ fontSize: 18, color: 'text.disabled' }} />
+                        }
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2, bgcolor: '#FAFAFE' } }}
+              />
+            </Box>
+
             <Button
               type='submit'
               variant='contained'
               fullWidth
               disabled={loading}
               sx={{
-                py: 1.5,
-                fontWeight: 700,
-                borderRadius: 2,
-                background: 'linear-gradient(135deg, #CDB4DB 0%, #B7E4C7 100%)',
-                color: '#4A4A4A',
-                '&:hover': { background: 'linear-gradient(135deg, #C0A0D0 0%, #A0D8B0 100%)' },
+                mt: 0.5,
+                py: 1.25,
+                borderRadius: 3,
+                fontSize: '0.95rem',
+                bgcolor: 'primary.main',
+                color: '#fff',
+                '&:hover': { bgcolor: 'primary.dark' },
               }}
             >
-              {loading ? <CircularProgress size={20} /> : '로그인'}
+              {loading ? <CircularProgress size={20} sx={{ color: 'white' }} /> : '로그인'}
             </Button>
           </Box>
 
-          <Divider sx={{ my: 2.5 }}>또는</Divider>
+          <Box sx={{ display: 'flex', alignItems: 'center', my: 2 }}>
+            <Box sx={{ flex: 1, height: '1px', bgcolor: 'divider' }} />
+            <Typography variant='caption' sx={{ px: 1.5, color: 'text.disabled' }}>또는</Typography>
+            <Box sx={{ flex: 1, height: '1px', bgcolor: 'divider' }} />
+          </Box>
 
           <Button
             variant='outlined'
             fullWidth
-            startIcon={<GoogleIcon />}
+            startIcon={<GoogleIcon sx={{ fontSize: 18 }} />}
             onClick={handleGoogleLogin}
-            sx={{ py: 1.5, borderRadius: 2, borderColor: 'divider', color: 'text.primary' }}
+            sx={{
+              py: 1.1,
+              borderRadius: 3,
+              borderColor: 'divider',
+              color: 'text.secondary',
+              fontSize: '0.875rem',
+              '&:hover': { borderColor: 'primary.light', bgcolor: '#F8F4FF' },
+            }}
           >
             Google로 로그인
           </Button>
 
-          <Box sx={{ textAlign: 'center', mt: 3 }}>
-            <Typography variant='body2' color='text.secondary'>
-              계정이 없으신가요?{' '}
-              <Link to='/register' style={{ color: '#CDB4DB', fontWeight: 600, textDecoration: 'none' }}>
-                회원가입
-              </Link>
-            </Typography>
-          </Box>
-        </Paper>
-      </Container>
+          <Typography variant='body2' color='text.disabled' sx={{ textAlign: 'center', mt: 2.5, fontSize: '0.8rem' }}>
+            계정이 없으신가요?{' '}
+            <Link to='/register' style={{ color: '#9B82CC', fontWeight: 600, textDecoration: 'none' }}>
+              회원가입
+            </Link>
+          </Typography>
+        </Box>
+      </Paper>
     </Box>
   );
 }

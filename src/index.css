@@ -9,9 +9,38 @@ html, body {
   min-height: 100vh;
 }
 
+/* 라이트 모드: 파스텔 핑크-보라 하늘 배경 */
+body {
+  background: linear-gradient(
+    160deg,
+    #F0D8FF 0%,
+    #E8D0FF 20%,
+    #F4E4FF 40%,
+    #EDD8FF 60%,
+    #F8EEFF 80%,
+    #F5EAFF 100%
+  );
+  background-attachment: fixed;
+}
+
+/* 다크 모드는 JS에서 MUI 테마로 관리 */
+
 #root {
   width: 100%;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+/* 반짝이는 별 효과 (다크모드) */
+@keyframes twinkle {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+.star {
+  position: fixed;
+  border-radius: 50%;
+  background: white;
+  animation: twinkle 2s infinite;
 }

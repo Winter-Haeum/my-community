@@ -4,31 +4,37 @@ export const getTheme = (mode) => createTheme({
   palette: {
     mode,
     primary: {
-      main: '#CDB4DB',
-      contrastText: '#4A4A4A',
+      main: mode === 'light' ? '#9B82CC' : '#BCA8E8',
+      light: mode === 'light' ? '#C8B4E8' : '#D4C4F8',
+      dark: mode === 'light' ? '#7A64A8' : '#9A88CC',
+      contrastText: '#FFFFFF',
     },
     secondary: {
-      main: '#B7E4C7',
-      contrastText: '#4A4A4A',
+      main: mode === 'light' ? '#D4B8F0' : '#88A8D8',
+      contrastText: '#FFFFFF',
     },
     ...(mode === 'light' ? {
       background: {
-        default: '#FAF9F6',
-        paper: '#F5EEFF',
+        default: '#F8F2FF',
+        paper: '#FFFFFF',
       },
       text: {
-        primary: '#4A4A4A',
-        secondary: '#7A7A7A',
+        primary: '#2D2050',
+        secondary: '#6B5A8C',
+        disabled: '#B0A0C8',
       },
+      divider: '#E4D8F8',
     } : {
       background: {
-        default: '#1a1025',
-        paper: '#261637',
+        default: '#0E0720',
+        paper: '#1A0D35',
       },
       text: {
-        primary: '#EEE8F5',
-        secondary: '#B0A0C0',
+        primary: '#EDE6FF',
+        secondary: '#B4A0CC',
+        disabled: '#5A4878',
       },
+      divider: '#2E1A50',
     }),
   },
   typography: {
@@ -45,9 +51,34 @@ export const getTheme = (mode) => createTheme({
       styleOverrides: {
         root: {
           textTransform: 'none',
-          borderRadius: 20,
+          borderRadius: 24,
           fontWeight: 600,
+          boxShadow: 'none',
+          '&:hover': { boxShadow: 'none' },
         },
+        containedPrimary: ({ theme }) => ({
+          backgroundColor: theme.palette.primary.main,
+          color: '#FFFFFF',
+          '&:hover': {
+            backgroundColor: theme.palette.primary.dark,
+          },
+        }),
+      },
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          '& .MuiOutlinedInput-notchedOutline': {
+            borderColor: theme.palette.mode === 'light' ? '#D8CFF0' : '#3A2560',
+          },
+          '&:hover .MuiOutlinedInput-notchedOutline': {
+            borderColor: theme.palette.mode === 'light' ? '#B8A0D8' : '#5A3A8C',
+          },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderColor: theme.palette.primary.main,
+            borderWidth: '1.5px',
+          },
+        }),
       },
     },
     MuiCard: {
@@ -55,8 +86,8 @@ export const getTheme = (mode) => createTheme({
         root: ({ theme }) => ({
           borderRadius: 16,
           boxShadow: theme.palette.mode === 'light'
-            ? '0 2px 12px rgba(205, 180, 219, 0.2)'
-            : '0 2px 12px rgba(0, 0, 0, 0.3)',
+            ? '0 2px 16px rgba(155, 130, 204, 0.12)'
+            : '0 2px 16px rgba(0, 0, 0, 0.4)',
         }),
       },
     },
@@ -64,8 +95,25 @@ export const getTheme = (mode) => createTheme({
       styleOverrides: {
         root: ({ theme }) => ({
           boxShadow: theme.palette.mode === 'light'
-            ? '0 2px 8px rgba(205, 180, 219, 0.15)'
-            : '0 2px 8px rgba(0, 0, 0, 0.25)',
+            ? '0 2px 12px rgba(155, 130, 204, 0.1)'
+            : '0 2px 12px rgba(0, 0, 0, 0.35)',
+        }),
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          fontWeight: 500,
+        },
+      },
+    },
+    MuiAppBar: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          backgroundColor: theme.palette.mode === 'light'
+            ? 'rgba(255, 255, 255, 0.85)'
+            : 'rgba(26, 13, 53, 0.9)',
+          backdropFilter: 'blur(12px)',
         }),
       },
     },

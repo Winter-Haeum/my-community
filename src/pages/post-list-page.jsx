@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
+import bunnyImg from '../assets/bunny.png';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
@@ -128,9 +129,10 @@ function PostListPage() {
               <CircularProgress sx={{ color: 'primary.main' }} />
             </Box>
           ) : posts.length === 0 ? (
-            <Box sx={{ textAlign: 'center', py: 8 }}>
-              <Typography variant='h6' color='text.secondary'>게시글이 없습니다</Typography>
-              <Typography variant='body2' color='text.disabled' sx={{ mt: 1 }}>
+            <Box sx={{ textAlign: 'center', py: 6 }}>
+              <Box component='img' src={bunnyImg} alt='마스코트' sx={{ width: 110, height: 110, opacity: 0.85, mb: 1.5 }} />
+              <Typography variant='h6' color='text.secondary' sx={{ fontWeight: 600 }}>아직 게시글이 없어요</Typography>
+              <Typography variant='body2' color='text.disabled' sx={{ mt: 0.5 }}>
                 첫 번째 글을 작성해보세요! 🌱
               </Typography>
             </Box>

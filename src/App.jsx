@@ -16,10 +16,19 @@ import MyPage from './pages/my-page';
 
 function AppRoutes() {
   useAuth();
-  const { user } = useAuthStore();
+  const { user, themeMode } = useAuthStore();
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{
+      minHeight: '100vh',
+      bgcolor: 'background.default',
+      display: 'flex',
+      flexDirection: 'column',
+      background: themeMode === 'dark'
+        ? 'linear-gradient(180deg, #0A0518 0%, #120830 30%, #1A0A40 60%, #0E0628 100%)'
+        : undefined,
+      backgroundAttachment: 'fixed',
+    }}>
       <Header />
       <Box sx={{ flex: 1 }}>
         <Routes>

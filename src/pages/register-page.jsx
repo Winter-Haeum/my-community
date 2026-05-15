@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
-import Container from '@mui/material/Container';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
@@ -12,8 +11,10 @@ import LinearProgress from '@mui/material/LinearProgress';
 import Chip from '@mui/material/Chip';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import bunnyImg from '../assets/bunny.png';
 import { supabase } from '../utils/supabase';
 
 const CATEGORIES = ['프론트엔드', 'JavaScript', 'React', 'AI 활용', '오류 해결 기록', '포트폴리오 피드백', '일상 공부 기록'];
@@ -39,6 +40,7 @@ function RegisterPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
+  const isSmall = useMediaQuery('(max-width:700px)');
 
   const passwordStrength = getPasswordStrength(form.password);
   const passwordMatch = form.passwordConfirm && form.password === form.passwordConfirm;
@@ -62,10 +64,7 @@ function RegisterPage() {
         email: form.email,
         password: form.password,
         options: {
-          data: {
-            nickname: form.nickname,
-            interest_categories: selectedCategories,
-          },
+          data: { nickname: form.nickname, interest_categories: selectedCategories },
         },
       });
       if (authError) throw authError;
@@ -78,156 +77,207 @@ function RegisterPage() {
     }
   };
 
+  const inputSx = { '& .MuiOutlinedInput-root': { borderRadius: 2, bgcolor: '#FAFAFE' } };
+
   return (
     <Box sx={{
       minHeight: '100vh',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      background: 'linear-gradient(135deg, #FAF9F6 0%, #F3EEFF 50%, #E8F5EE 100%)',
-      py: 4,
+      background: 'linear-gradient(135deg, #EDD8FF 0%, #D8C4F8 50%, #C8D8FF 100%)',
+      p: { xs: 2, md: 3 },
     }}>
-      <Container maxWidth='xs'>
-        <Paper elevation={0} sx={{
-          p: { xs: 3, md: 5 },
-          borderRadius: 4,
-          bgcolor: 'background.paper',
-          boxShadow: '0 8px 40px rgba(205, 180, 219, 0.25)',
-        }}>
-          <Box sx={{ textAlign: 'center', mb: 4 }}>
-            <Typography variant='h4' sx={{ fontWeight: 700, color: 'primary.main', mb: 1 }}>
-              회원가입
+      <Paper elevation={0} sx={{
+        display: 'flex',
+        width: '100%',
+        maxWidth: 820,
+        borderRadius: 4,
+        overflow: 'hidden',
+        boxShadow: '0 20px 60px rgba(100, 60, 180, 0.25)',
+      }}>
+        {/* 왼쪽 일러스트 패널 */}
+        {!isSmall && (
+          <Box sx={{
+            flex: '0 0 42%',
+            background: 'linear-gradient(160deg, #C4A8E8 0%, #A888CC 40%, #9070B8 70%, #7A5AA8 100%)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            p: 4,
+            position: 'relative',
+            overflow: 'hidden',
+          }}>
+            {[
+              { top: '8%', left: '12%', size: 5 },
+              { top: '18%', right: '15%', size: 3 },
+              { top: '40%', left: '6%', size: 4 },
+              { bottom: '30%', right: '10%', size: 5 },
+              { bottom: '15%', left: '22%', size: 3 },
+            ].map((s, i) => (
+              <Box key={i} sx={{
+                position: 'absolute',
+                width: s.size, height: s.size,
+                borderRadius: '50%',
+                bgcolor: 'rgba(255,255,255,0.8)',
+                top: s.top, left: s.left, right: s.right, bottom: s.bottom,
+                boxShadow: `0 0 ${s.size * 2}px rgba(255,255,255,0.6)`,
+              }} />
+            ))}
+
+            <Box sx={{
+              position: 'absolute', top: 22, right: 28,
+              width: 44, height: 44, borderRadius: '50%',
+              background: 'radial-gradient(circle at 35% 35%, #FFEEBB, #FFD580)',
+              boxShadow: '0 0 16px rgba(255, 220, 100, 0.5)',
+            }} />
+
+            <Typography variant='h5' sx={{
+              color: '#FFFFFF', fontWeight: 700,
+              textAlign: 'center', mb: 1, fontSize: '1.25rem',
+              textShadow: '0 2px 8px rgba(80,40,140,0.3)',
+            }}>
+              함께 성장해요 🌱
             </Typography>
-            <Typography variant='body1' color='text.secondary'>
-              Winter Log와 함께 성장하세요 🌱
+            <Typography variant='body2' sx={{
+              color: 'rgba(255,255,255,0.8)', textAlign: 'center',
+              mb: 3, fontSize: '0.82rem', lineHeight: 1.6,
+            }}>
+              Winter Log에서 나만의<br />성장 기록을 시작하세요
             </Typography>
+
+            <Box component='img' src={bunnyImg} alt='마스코트'
+              sx={{ width: 155, height: 155, objectFit: 'contain',
+                filter: 'drop-shadow(0 8px 24px rgba(80,40,140,0.35))' }}
+            />
           </Box>
+        )}
+
+        {/* 오른쪽 폼 패널 */}
+        <Box sx={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          p: { xs: 3, md: 4.5 },
+          bgcolor: 'background.paper',
+          maxHeight: { xs: 'auto', md: '90vh' },
+          overflowY: 'auto',
+        }}>
+          {isSmall && (
+            <Box sx={{ textAlign: 'center', mb: 2 }}>
+              <Box component='img' src={bunnyImg} alt='마스코트' sx={{ width: 70, height: 70 }} />
+            </Box>
+          )}
+
+          <Typography variant='h5' sx={{ fontWeight: 700, mb: 2.5, fontSize: '1.4rem' }}>
+            회원가입
+          </Typography>
 
           {error && <Alert severity='error' sx={{ mb: 2, borderRadius: 2 }}>{error}</Alert>}
           {success && <Alert severity='success' sx={{ mb: 2, borderRadius: 2 }}>{success}</Alert>}
 
-          <Box component='form' onSubmit={handleRegister} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <TextField
-              label='이메일'
-              type='email'
-              value={form.email}
-              onChange={handleChange('email')}
-              placeholder='example@winterlog.com'
-              required
-              fullWidth
-              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
-            />
-            <TextField
-              label='닉네임'
-              value={form.nickname}
-              onChange={handleChange('nickname')}
-              placeholder='사용할 닉네임을 입력하세요'
-              required
-              fullWidth
-              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
-            />
+          <Box component='form' onSubmit={handleRegister} sx={{ display: 'flex', flexDirection: 'column', gap: 1.75 }}>
             <Box>
+              <Typography variant='caption' sx={{ color: 'text.secondary', fontWeight: 500, mb: 0.75, display: 'block' }}>이메일</Typography>
+              <TextField type='email' value={form.email} onChange={handleChange('email')}
+                placeholder='이메일을 입력하세요' required fullWidth size='small' sx={inputSx} />
+            </Box>
+
+            <Box>
+              <Typography variant='caption' sx={{ color: 'text.secondary', fontWeight: 500, mb: 0.75, display: 'block' }}>닉네임</Typography>
+              <TextField value={form.nickname} onChange={handleChange('nickname')}
+                placeholder='사용할 닉네임을 입력하세요' required fullWidth size='small' sx={inputSx} />
+            </Box>
+
+            <Box>
+              <Typography variant='caption' sx={{ color: 'text.secondary', fontWeight: 500, mb: 0.75, display: 'block' }}>비밀번호</Typography>
               <TextField
-                label='비밀번호'
                 type={showPassword ? 'text' : 'password'}
                 value={form.password}
                 onChange={handleChange('password')}
                 placeholder='영문, 숫자, 특수문자 포함 8자 이상'
-                required
-                fullWidth
+                required fullWidth size='small'
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position='end'>
-                      <IconButton onClick={() => setShowPassword(!showPassword)} size='small'>
-                        {showPassword ? <VisibilityOffIcon fontSize='small' /> : <VisibilityIcon fontSize='small' />}
+                      <IconButton onClick={() => setShowPassword(!showPassword)} size='small' edge='end'>
+                        {showPassword
+                          ? <VisibilityOffIcon sx={{ fontSize: 17, color: 'text.disabled' }} />
+                          : <VisibilityIcon sx={{ fontSize: 17, color: 'text.disabled' }} />
+                        }
                       </IconButton>
                     </InputAdornment>
                   ),
                 }}
-                sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                sx={inputSx}
               />
               {form.password && (
                 <Box sx={{ mt: 0.75 }}>
-                  <LinearProgress
-                    variant='determinate'
-                    value={passwordStrength.score}
-                    color={passwordStrength.color}
-                    sx={{ borderRadius: 1, height: 4 }}
-                  />
+                  <LinearProgress variant='determinate' value={passwordStrength.score}
+                    color={passwordStrength.color} sx={{ borderRadius: 1, height: 3 }} />
                   <Typography variant='caption' color={`${passwordStrength.color}.main`}>
-                    비밀번호 강도: {passwordStrength.label}
+                    강도: {passwordStrength.label}
                   </Typography>
                 </Box>
               )}
             </Box>
-            <TextField
-              label='비밀번호 확인'
-              type='password'
-              value={form.passwordConfirm}
-              onChange={handleChange('passwordConfirm')}
-              placeholder='비밀번호를 다시 입력하세요'
-              required
-              fullWidth
-              error={passwordMismatch}
-              helperText={
-                passwordMatch ? '✔ 비밀번호가 일치합니다'
-                  : passwordMismatch ? '❌ 비밀번호가 일치하지 않습니다'
-                  : ''
-              }
-              FormHelperTextProps={{ sx: { color: passwordMatch ? 'success.main' : 'error.main' } }}
-              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
-            />
 
             <Box>
-              <Typography variant='body2' color='text.secondary' sx={{ mb: 1 }}>
-                관심 카테고리 (선택)
+              <Typography variant='caption' sx={{ color: 'text.secondary', fontWeight: 500, mb: 0.75, display: 'block' }}>비밀번호 확인</Typography>
+              <TextField
+                type='password' value={form.passwordConfirm}
+                onChange={handleChange('passwordConfirm')}
+                placeholder='비밀번호를 다시 입력하세요'
+                required fullWidth size='small'
+                error={passwordMismatch}
+                helperText={
+                  passwordMatch ? '✔ 비밀번호가 일치합니다'
+                    : passwordMismatch ? '❌ 비밀번호가 일치하지 않습니다' : ''
+                }
+                FormHelperTextProps={{ sx: { color: passwordMatch ? 'success.main' : 'error.main', mt: 0.5 } }}
+                sx={inputSx}
+              />
+            </Box>
+
+            <Box>
+              <Typography variant='caption' sx={{ color: 'text.secondary', fontWeight: 500, mb: 1, display: 'block' }}>
+                관심 카테고리 <Typography component='span' variant='caption' color='text.disabled'>(선택)</Typography>
               </Typography>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
                 {CATEGORIES.map((cat) => (
-                  <Chip
-                    key={cat}
-                    label={cat}
-                    onClick={() => toggleCategory(cat)}
-                    variant={selectedCategories.includes(cat) ? 'filled' : 'outlined'}
+                  <Chip key={cat} label={cat} onClick={() => toggleCategory(cat)}
                     size='small'
+                    variant={selectedCategories.includes(cat) ? 'filled' : 'outlined'}
                     sx={{
-                      bgcolor: selectedCategories.includes(cat) ? 'primary.main' : 'transparent',
+                      fontSize: '0.72rem',
                       cursor: 'pointer',
-                      fontSize: '0.75rem',
+                      bgcolor: selectedCategories.includes(cat) ? 'primary.main' : 'transparent',
+                      color: selectedCategories.includes(cat) ? 'white' : 'text.secondary',
+                      borderColor: selectedCategories.includes(cat) ? 'primary.main' : 'divider',
+                      '&:hover': { bgcolor: selectedCategories.includes(cat) ? 'primary.dark' : 'primary.light' },
                     }}
                   />
                 ))}
               </Box>
             </Box>
 
-            <Button
-              type='submit'
-              variant='contained'
-              fullWidth
-              disabled={loading}
-              sx={{
-                py: 1.5,
-                fontWeight: 700,
-                borderRadius: 2,
-                background: 'linear-gradient(135deg, #CDB4DB 0%, #B7E4C7 100%)',
-                color: '#4A4A4A',
-                '&:hover': { background: 'linear-gradient(135deg, #C0A0D0 0%, #A0D8B0 100%)' },
-              }}
-            >
-              {loading ? <CircularProgress size={20} /> : '회원가입'}
+            <Button type='submit' variant='contained' fullWidth disabled={loading}
+              sx={{ mt: 0.5, py: 1.25, borderRadius: 3, fontSize: '0.95rem',
+                bgcolor: 'primary.main', color: '#fff', '&:hover': { bgcolor: 'primary.dark' } }}>
+              {loading ? <CircularProgress size={20} sx={{ color: 'white' }} /> : '회원가입'}
             </Button>
           </Box>
 
-          <Box sx={{ textAlign: 'center', mt: 3 }}>
-            <Typography variant='body2' color='text.secondary'>
-              이미 계정이 있으신가요?{' '}
-              <Link to='/login' style={{ color: '#CDB4DB', fontWeight: 600, textDecoration: 'none' }}>
-                로그인
-              </Link>
-            </Typography>
-          </Box>
-        </Paper>
-      </Container>
+          <Typography variant='body2' color='text.disabled' sx={{ textAlign: 'center', mt: 2.5, fontSize: '0.8rem' }}>
+            이미 계정이 있으신가요?{' '}
+            <Link to='/login' style={{ color: '#9B82CC', fontWeight: 600, textDecoration: 'none' }}>
+              로그인
+            </Link>
+          </Typography>
+        </Box>
+      </Paper>
     </Box>
   );
 }
