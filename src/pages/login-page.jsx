@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
@@ -7,6 +7,8 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import Alert from '@mui/material/Alert';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import CircularProgress from '@mui/material/CircularProgress';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -26,7 +28,16 @@ function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState('');
+  const [rememberEmail, setRememberEmail] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const saved = localStorage.getItem('winterlog_remembered_email');
+    if (saved) {
+      setEmail(saved);
+      setRememberEmail(true);
+    }
+  }, []);
   const { setUser, setProfile, themeMode } = useAuthStore();
   const isDark = themeMode === 'dark';
   const isSmall = useMediaQuery('(max-width:700px)');
@@ -38,6 +49,11 @@ function LoginPage() {
     try {
       const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
       if (authError) throw authError;
+      if (rememberEmail) {
+        localStorage.setItem('winterlog_remembered_email', email);
+      } else {
+        localStorage.removeItem('winterlog_remembered_email');
+      }
       setUser(data.user);
       const { data: profile } = await supabase
         .from('winterlog_users')
@@ -151,6 +167,7 @@ function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder='이메일을 입력하세요'
                 required fullWidth size='small'
+                autoComplete='email'
                 sx={inputSx}
               />
             </Box>
@@ -165,6 +182,7 @@ function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder='비밀번호를 입력하세요'
                 required fullWidth size='small'
+                autoComplete='current-password'
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position='end'>
@@ -179,6 +197,19 @@ function LoginPage() {
                 sx={inputSx}
               />
             </Box>
+
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={rememberEmail}
+                  onChange={(e) => setRememberEmail(e.target.checked)}
+                  size='small'
+                  sx={{ color: '#A898D8', '&.Mui-checked': { color: '#A898D8' } }}
+                />
+              }
+              label={<Typography variant='caption' color='text.secondary'>이메일 기억하기</Typography>}
+              sx={{ mt: -0.5, mb: -0.5, ml: -0.5 }}
+            />
 
             <Button
               type='submit'

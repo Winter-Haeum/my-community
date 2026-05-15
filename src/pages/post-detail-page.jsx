@@ -18,10 +18,14 @@ import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import ShareIcon from '@mui/icons-material/Share';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { supabase } from '../utils/supabase';
 import useAuthStore from '../store/auth-store';
+
+const ADMIN_EMAIL = 'a01033490494@gmail.com';
 
 const formatDate = (dateStr) => new Date(dateStr).toLocaleString('ko-KR');
 
@@ -127,6 +131,12 @@ function PostDetailPage() {
   const [userReactions, setUserReactions] = useState({ liked: false, bookmarked: false });
   const [error, setError] = useState('');
 
+  const isAdmin = user?.email === ADMIN_EMAIL;
+  const isAuthor = user && post && user.id === post.user_id;
+  const isNotice = post?.category === '공지사항';
+  const canEdit = isAuthor || (isAdmin && isNotice);
+  const canDelete = isAuthor || isAdmin;
+
   useEffect(() => {
     fetchPost();
     fetchComments();
@@ -224,6 +234,15 @@ function PostDetailPage() {
     fetchUserReactions();
   };
 
+  const handleEdit = () => navigate(`/post/${id}/edit`);
+
+  const handleDelete = async () => {
+    if (!window.confirm('정말 이 게시글을 삭제하시겠습니까?')) return;
+    const { error: err } = await supabase.from('winterlog_posts').delete().eq('post_id', id);
+    if (err) { setError(err.message); return; }
+    navigate('/');
+  };
+
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
     alert('링크가 복사되었습니다!');
@@ -305,7 +324,7 @@ function PostDetailPage() {
 
         <Divider sx={{ mt: 3, mb: 2 }} />
 
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
           <Button
             variant={userReactions.liked ? 'contained' : 'outlined'}
             startIcon={userReactions.liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
@@ -339,6 +358,31 @@ function PostDetailPage() {
           >
             공유
           </Button>
+
+          <Box sx={{ flex: 1 }} />
+
+          {canEdit && (
+            <Button
+              variant='outlined'
+              startIcon={<EditIcon />}
+              onClick={handleEdit}
+              size='small'
+              sx={{ borderRadius: 3, borderColor: 'primary.light', color: 'primary.main' }}
+            >
+              수정
+            </Button>
+          )}
+          {canDelete && (
+            <Button
+              variant='outlined'
+              startIcon={<DeleteIcon />}
+              onClick={handleDelete}
+              size='small'
+              sx={{ borderRadius: 3, borderColor: '#FF8A80', color: '#FF6B6B' }}
+            >
+              삭제
+            </Button>
+          )}
         </Box>
       </Paper>
 

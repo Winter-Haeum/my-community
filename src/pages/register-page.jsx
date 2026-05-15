@@ -142,17 +142,17 @@ function RegisterPage() {
           {error && <Alert severity='error' sx={{ mb: 1.25, borderRadius: 2 }}>{error}</Alert>}
           {success && <Alert severity='success' sx={{ mb: 1.25, borderRadius: 2 }}>{success}</Alert>}
 
-          <Box component='form' onSubmit={handleRegister} sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
+          <Box component='form' onSubmit={handleRegister} autoComplete='off' sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
             <Box>
               <Typography variant='caption' sx={{ color: 'text.secondary', fontWeight: 500, mb: 0.75, display: 'block' }}>이메일</Typography>
               <TextField type='email' value={form.email} onChange={handleChange('email')}
-                placeholder='이메일을 입력하세요' required fullWidth size='small' sx={inputSx} />
+                placeholder='이메일을 입력하세요' required fullWidth size='small' autoComplete='email' sx={inputSx} />
             </Box>
 
             <Box>
               <Typography variant='caption' sx={{ color: 'text.secondary', fontWeight: 500, mb: 0.75, display: 'block' }}>닉네임</Typography>
               <TextField value={form.nickname} onChange={handleChange('nickname')}
-                placeholder='사용할 닉네임을 입력하세요' required fullWidth size='small' sx={inputSx} />
+                placeholder='사용할 닉네임을 입력하세요' required fullWidth size='small' autoComplete='username' sx={inputSx} />
             </Box>
 
             <Box>
@@ -162,7 +162,7 @@ function RegisterPage() {
                 value={form.password}
                 onChange={handleChange('password')}
                 placeholder='영문, 숫자, 특수문자 포함 8자 이상'
-                required fullWidth size='small'
+                required fullWidth size='small' autoComplete='new-password'
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position='end'>
@@ -193,7 +193,7 @@ function RegisterPage() {
                 type='password' value={form.passwordConfirm}
                 onChange={handleChange('passwordConfirm')}
                 placeholder='비밀번호를 다시 입력하세요'
-                required fullWidth size='small'
+                required fullWidth size='small' autoComplete='new-password'
                 error={passwordMismatch}
                 helperText={
                   passwordMatch ? '✔ 비밀번호가 일치합니다'

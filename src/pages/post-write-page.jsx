@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Paper from '@mui/material/Paper';
@@ -19,7 +19,8 @@ import remarkGfm from 'remark-gfm';
 import { supabase } from '../utils/supabase';
 import useAuthStore from '../store/auth-store';
 
-const CATEGORIES = ['프론트엔드', 'JavaScript', 'React', 'AI 활용', '오류 해결 기록', '포트폴리오 피드백', '일상 공부 기록', '자유 게시판'];
+const ADMIN_EMAIL = 'a01033490494@gmail.com';
+const BASE_CATEGORIES = ['프론트엔드', 'JavaScript', 'React', 'AI 활용', '오류 해결 기록', '포트폴리오 피드백', '일상 공부 기록', '자유 게시판'];
 const STATUS_TAGS = ['공부중', '질문', '해결완료', '회고', '팁공유'];
 
 const MARKDOWN_PLACEHOLDER = `# 제목을 여기에 작성하세요
@@ -40,12 +41,38 @@ console.log('Hello, Winter Log!');
 - 목록 3`;
 
 function PostWritePage() {
+  const { id } = useParams();
+  const isEdit = !!id;
   const [form, setForm] = useState({ title: '', content: '', category: '', status_tag: '' });
   const [tab, setTab] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [fetchLoading, setFetchLoading] = useState(isEdit);
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { user, profile, setProfile } = useAuthStore();
+
+  const isAdmin = user?.email === ADMIN_EMAIL;
+  const CATEGORIES = isAdmin ? ['공지사항', ...BASE_CATEGORIES] : BASE_CATEGORIES;
+
+  useEffect(() => {
+    if (!isEdit) return;
+    setFetchLoading(true);
+    supabase
+      .from('winterlog_posts')
+      .select('*')
+      .eq('post_id', id)
+      .single()
+      .then(({ data, error: err }) => {
+        if (err || !data) { setError('게시글을 불러올 수 없습니다.'); return; }
+        setForm({
+          title: data.title || '',
+          content: data.content || '',
+          category: data.category || '',
+          status_tag: data.status_tag || '',
+        });
+        setFetchLoading(false);
+      });
+  }, [id, isEdit]);
 
   const handleChange = (field) => (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
@@ -55,45 +82,59 @@ function PostWritePage() {
     setLoading(true);
     setError('');
     try {
-      const { data, error: err } = await supabase
-        .from('winterlog_posts')
-        .insert({
-          user_id: user.id,
-          title: form.title,
-          content: form.content,
-          category: form.category || null,
-          status_tag: form.status_tag || null,
-        })
-        .select()
-        .single();
-      if (err) throw err;
-
-      const today = new Date().toISOString().split('T')[0];
-      const { data: existingLog } = await supabase
-        .from('winterlog_study_logs')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('study_date', today)
-        .single();
-
-      if (existingLog) {
-        await supabase.from('winterlog_study_logs')
-          .update({ post_count: (existingLog.post_count || 0) + 1 })
-          .eq('log_id', existingLog.log_id);
+      if (isEdit) {
+        const { error: err } = await supabase
+          .from('winterlog_posts')
+          .update({
+            title: form.title,
+            content: form.content,
+            category: form.category || null,
+            status_tag: form.status_tag || null,
+          })
+          .eq('post_id', id);
+        if (err) throw err;
+        navigate(`/post/${id}`);
       } else {
-        await supabase.from('winterlog_study_logs')
-          .insert({ user_id: user.id, study_date: today, post_count: 1 });
-      }
+        const { data, error: err } = await supabase
+          .from('winterlog_posts')
+          .insert({
+            user_id: user.id,
+            title: form.title,
+            content: form.content,
+            category: form.category || null,
+            status_tag: form.status_tag || null,
+          })
+          .select()
+          .single();
+        if (err) throw err;
 
-      if (profile) {
-        const newScore = (profile.activity_score || 0) + 10;
-        await supabase.from('winterlog_users')
-          .update({ activity_score: newScore })
-          .eq('user_id', user.id);
-        setProfile({ ...profile, activity_score: newScore });
-      }
+        const today = new Date().toISOString().split('T')[0];
+        const { data: existingLog } = await supabase
+          .from('winterlog_study_logs')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('study_date', today)
+          .single();
 
-      navigate(`/post/${data.post_id}`);
+        if (existingLog) {
+          await supabase.from('winterlog_study_logs')
+            .update({ post_count: (existingLog.post_count || 0) + 1 })
+            .eq('log_id', existingLog.log_id);
+        } else {
+          await supabase.from('winterlog_study_logs')
+            .insert({ user_id: user.id, study_date: today, post_count: 1 });
+        }
+
+        if (profile) {
+          const newScore = (profile.activity_score || 0) + 10;
+          await supabase.from('winterlog_users')
+            .update({ activity_score: newScore })
+            .eq('user_id', user.id);
+          setProfile({ ...profile, activity_score: newScore });
+        }
+
+        navigate(`/post/${data.post_id}`);
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -101,10 +142,18 @@ function PostWritePage() {
     }
   };
 
+  if (fetchLoading) return (
+    <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+      <CircularProgress sx={{ color: 'primary.main' }} />
+    </Box>
+  );
+
   return (
     <Container maxWidth='md' sx={{ py: { xs: 2, md: 4 } }}>
       <Paper elevation={0} sx={{ p: { xs: 2.5, md: 4 }, borderRadius: 3, bgcolor: 'background.paper' }}>
-        <Typography variant='h5' sx={{ fontWeight: 700, mb: 3 }}>✏️ 글쓰기</Typography>
+        <Typography variant='h5' sx={{ fontWeight: 700, mb: 3 }}>
+          {isEdit ? '✏️ 글 수정' : '✏️ 글쓰기'}
+        </Typography>
 
         {error && <Alert severity='error' sx={{ mb: 2, borderRadius: 2 }}>{error}</Alert>}
 
@@ -194,7 +243,7 @@ function PostWritePage() {
               disabled={loading}
               sx={{ bgcolor: 'primary.main', color: 'text.primary', px: 4, borderRadius: 2 }}
             >
-              {loading ? <CircularProgress size={20} /> : '게시하기'}
+              {loading ? <CircularProgress size={20} /> : (isEdit ? '수정하기' : '게시하기')}
             </Button>
           </Box>
         </Box>

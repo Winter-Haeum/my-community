@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
@@ -39,6 +39,7 @@ function AppRoutes() {
           <Route path='/login' element={user ? <Navigate to='/' replace /> : <LoginPage />} />
           <Route path='/register' element={user ? <Navigate to='/' replace /> : <RegisterPage />} />
           <Route path='/post/:id' element={<PostDetailPage />} />
+          <Route path='/post/:id/edit' element={user ? <PostWritePage /> : <Navigate to='/login' replace />} />
           <Route path='/write' element={user ? <PostWritePage /> : <Navigate to='/login' replace />} />
           <Route path='/my' element={user ? <MyPage /> : <Navigate to='/login' replace />} />
           <Route path='/guestbook' element={<GuestbookPage />} />
@@ -56,9 +57,9 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <BrowserRouter>
+      <HashRouter>
         <AppRoutes />
-      </BrowserRouter>
+      </HashRouter>
     </ThemeProvider>
   );
 }
