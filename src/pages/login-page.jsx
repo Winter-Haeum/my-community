@@ -14,6 +14,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import GoogleIcon from '@mui/icons-material/Google';
+import AuthLeftPanel from '../components/landing/auth-left-panel';
 import bunnyImg from '../assets/bunny.png';
 import { supabase } from '../utils/supabase';
 import useAuthStore from '../store/auth-store';
@@ -61,6 +62,8 @@ function LoginPage() {
     });
   };
 
+  const inputSx = { '& .MuiOutlinedInput-root': { borderRadius: 2, bgcolor: '#FAFAFE' } };
+
   return (
     <Box sx={{
       minHeight: '100vh',
@@ -76,108 +79,12 @@ function LoginPage() {
         minHeight: { xs: 'auto', md: 540 },
         borderRadius: 4,
         overflow: 'hidden',
-        boxShadow: '0 20px 60px rgba(100, 60, 180, 0.25)',
+        boxShadow: '0 20px 60px rgba(100, 60, 180, 0.22)',
       }}>
-        {/* ── 왼쪽 일러스트 패널 ── */}
-        {!isSmall && (
-          <Box sx={{
-            flex: '0 0 48%',
-            background: 'linear-gradient(160deg, #C4A8E8 0%, #A888CC 40%, #9070B8 70%, #7A5AA8 100%)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            p: 4,
-            position: 'relative',
-            overflow: 'hidden',
-          }}>
-            {/* 별 장식 */}
-            {[
-              { top: '8%', left: '12%', size: 6 },
-              { top: '15%', right: '18%', size: 4 },
-              { top: '30%', left: '8%', size: 3 },
-              { bottom: '35%', right: '12%', size: 5 },
-              { bottom: '18%', left: '20%', size: 3 },
-              { top: '55%', right: '8%', size: 4 },
-            ].map((s, i) => (
-              <Box key={i} sx={{
-                position: 'absolute',
-                width: s.size,
-                height: s.size,
-                borderRadius: '50%',
-                bgcolor: 'rgba(255,255,255,0.8)',
-                top: s.top,
-                left: s.left,
-                right: s.right,
-                bottom: s.bottom,
-                boxShadow: `0 0 ${s.size * 2}px rgba(255,255,255,0.6)`,
-                animation: `twinkle ${1.5 + i * 0.4}s ease-in-out infinite`,
-              }} />
-            ))}
+        {/* 왼쪽 공통 일러스트 패널 */}
+        {!isSmall && <AuthLeftPanel />}
 
-            {/* 달 */}
-            <Box sx={{
-              position: 'absolute',
-              top: 24,
-              right: 32,
-              width: 52,
-              height: 52,
-              borderRadius: '50%',
-              background: 'radial-gradient(circle at 35% 35%, #FFEEBB, #FFD580)',
-              boxShadow: '0 0 20px rgba(255, 220, 100, 0.5)',
-            }} />
-
-            {/* 텍스트 */}
-            <Typography variant='h5' sx={{
-              color: '#FFFFFF',
-              fontWeight: 700,
-              textAlign: 'center',
-              mb: 1,
-              fontSize: '1.35rem',
-              textShadow: '0 2px 8px rgba(80,40,140,0.3)',
-            }}>
-              오늘도 성장하는 중 🌱
-            </Typography>
-            <Typography variant='body2' sx={{
-              color: 'rgba(255,255,255,0.8)',
-              textAlign: 'center',
-              mb: 3,
-              fontSize: '0.85rem',
-              lineHeight: 1.6,
-            }}>
-              기록하고, 공유하고, 함께 성장해요.
-            </Typography>
-
-            {/* 토끼 캐릭터 */}
-            <Box sx={{
-              width: 158,
-              height: 158,
-              borderRadius: '50%',
-              overflow: 'hidden',
-              bgcolor: 'rgba(255,255,255,0.14)',
-              boxShadow: '0 0 0 8px rgba(255,255,255,0.08), 0 8px 40px rgba(80, 30, 160, 0.45)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>
-              <Box component='img' src={bunnyImg} alt='Winter Log 마스코트'
-                sx={{ width: '90%', height: '90%', objectFit: 'contain' }} />
-            </Box>
-
-            {/* 하단 포인트 */}
-            <Box sx={{
-              mt: 3,
-              display: 'flex',
-              gap: 1,
-            }}>
-              {['#FFFFFF40', '#FFFFFF80', '#FFFFFF40'].map((c, i) => (
-                <Box key={i} sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: c }} />
-              ))}
-            </Box>
-          </Box>
-        )}
-
-        {/* ── 오른쪽 폼 패널 ── */}
+        {/* 오른쪽 로그인 폼 */}
         <Box sx={{
           flex: 1,
           display: 'flex',
@@ -186,31 +93,22 @@ function LoginPage() {
           p: { xs: 3, md: 5 },
           bgcolor: 'background.paper',
         }}>
-          {/* 모바일에서만 보이는 로고 */}
+          {/* 모바일 토끼 */}
           {isSmall && (
             <Box sx={{ textAlign: 'center', mb: 3 }}>
               <Box sx={{
-                width: 72,
-                height: 72,
-                borderRadius: '50%',
-                overflow: 'hidden',
+                width: 72, height: 72, borderRadius: '50%', overflow: 'hidden',
                 bgcolor: 'rgba(200,180,245,0.2)',
-                boxShadow: '0 4px 20px rgba(155, 100, 230, 0.35)',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                boxShadow: '0 4px 20px rgba(155,100,230,0.35)',
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
               }}>
-                <Box component='img' src={bunnyImg} alt='마스코트' sx={{ width: '90%', height: '90%', objectFit: 'contain' }} />
+                <Box component='img' src={bunnyImg} alt='마스코트'
+                  sx={{ width: '90%', height: '90%', objectFit: 'contain' }} />
               </Box>
             </Box>
           )}
 
-          <Typography variant='h5' sx={{
-            fontWeight: 700,
-            mb: 3,
-            color: 'text.primary',
-            fontSize: '1.5rem',
-          }}>
+          <Typography variant='h5' sx={{ fontWeight: 700, mb: 3, color: 'text.primary', fontSize: '1.5rem' }}>
             로그인
           </Typography>
 
@@ -230,40 +128,33 @@ function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder='이메일을 입력하세요'
-                required
-                fullWidth
-                size='small'
-                sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2, bgcolor: '#FAFAFE' } }}
+                required fullWidth size='small'
+                sx={inputSx}
               />
             </Box>
 
             <Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.75 }}>
-                <Typography variant='caption' sx={{ color: 'text.secondary', fontWeight: 500 }}>
-                  비밀번호
-                </Typography>
-              </Box>
+              <Typography variant='caption' sx={{ color: 'text.secondary', fontWeight: 500, mb: 0.75, display: 'block' }}>
+                비밀번호
+              </Typography>
               <TextField
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder='비밀번호를 입력하세요'
-                required
-                fullWidth
-                size='small'
+                required fullWidth size='small'
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position='end'>
                       <IconButton onClick={() => setShowPassword(!showPassword)} size='small' edge='end'>
                         {showPassword
                           ? <VisibilityOffIcon sx={{ fontSize: 18, color: 'text.disabled' }} />
-                          : <VisibilityIcon sx={{ fontSize: 18, color: 'text.disabled' }} />
-                        }
+                          : <VisibilityIcon sx={{ fontSize: 18, color: 'text.disabled' }} />}
                       </IconButton>
                     </InputAdornment>
                   ),
                 }}
-                sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2, bgcolor: '#FAFAFE' } }}
+                sx={inputSx}
               />
             </Box>
 
@@ -273,13 +164,10 @@ function LoginPage() {
               fullWidth
               disabled={loading}
               sx={{
-                mt: 0.5,
-                py: 1.25,
-                borderRadius: 3,
-                fontSize: '0.95rem',
-                bgcolor: 'primary.main',
-                color: '#fff',
-                '&:hover': { bgcolor: 'primary.dark' },
+                mt: 0.5, py: 1.25, borderRadius: 3, fontSize: '0.95rem',
+                bgcolor: '#A898D8', color: '#fff',
+                boxShadow: 'none',
+                '&:hover': { bgcolor: '#9888C8', boxShadow: 'none' },
               }}
             >
               {loading ? <CircularProgress size={20} sx={{ color: 'white' }} /> : '로그인'}
@@ -298,11 +186,8 @@ function LoginPage() {
             startIcon={<GoogleIcon sx={{ fontSize: 18 }} />}
             onClick={handleGoogleLogin}
             sx={{
-              py: 1.1,
-              borderRadius: 3,
-              borderColor: 'divider',
-              color: 'text.secondary',
-              fontSize: '0.875rem',
+              py: 1.1, borderRadius: 3,
+              borderColor: 'divider', color: 'text.secondary', fontSize: '0.875rem',
               '&:hover': { borderColor: 'primary.light', bgcolor: '#F8F4FF' },
             }}
           >

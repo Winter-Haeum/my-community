@@ -14,6 +14,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import AuthLeftPanel from '../components/landing/auth-left-panel';
 import bunnyImg from '../assets/bunny.png';
 import { supabase } from '../utils/supabase';
 
@@ -93,77 +94,12 @@ function RegisterPage() {
         maxWidth: 820,
         borderRadius: 4,
         overflow: 'hidden',
-        boxShadow: '0 20px 60px rgba(100, 60, 180, 0.25)',
+        boxShadow: '0 20px 60px rgba(100, 60, 180, 0.22)',
       }}>
-        {/* 왼쪽 일러스트 패널 */}
-        {!isSmall && (
-          <Box sx={{
-            flex: '0 0 42%',
-            background: 'linear-gradient(160deg, #C4A8E8 0%, #A888CC 40%, #9070B8 70%, #7A5AA8 100%)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            p: 4,
-            position: 'relative',
-            overflow: 'hidden',
-          }}>
-            {[
-              { top: '8%', left: '12%', size: 5 },
-              { top: '18%', right: '15%', size: 3 },
-              { top: '40%', left: '6%', size: 4 },
-              { bottom: '30%', right: '10%', size: 5 },
-              { bottom: '15%', left: '22%', size: 3 },
-            ].map((s, i) => (
-              <Box key={i} sx={{
-                position: 'absolute',
-                width: s.size, height: s.size,
-                borderRadius: '50%',
-                bgcolor: 'rgba(255,255,255,0.8)',
-                top: s.top, left: s.left, right: s.right, bottom: s.bottom,
-                boxShadow: `0 0 ${s.size * 2}px rgba(255,255,255,0.6)`,
-              }} />
-            ))}
+        {/* 왼쪽 공통 일러스트 패널 (로그인 페이지와 동일) */}
+        {!isSmall && <AuthLeftPanel />}
 
-            <Box sx={{
-              position: 'absolute', top: 22, right: 28,
-              width: 44, height: 44, borderRadius: '50%',
-              background: 'radial-gradient(circle at 35% 35%, #FFEEBB, #FFD580)',
-              boxShadow: '0 0 16px rgba(255, 220, 100, 0.5)',
-            }} />
-
-            <Typography variant='h5' sx={{
-              color: '#FFFFFF', fontWeight: 700,
-              textAlign: 'center', mb: 1, fontSize: '1.25rem',
-              textShadow: '0 2px 8px rgba(80,40,140,0.3)',
-            }}>
-              함께 성장해요 🌱
-            </Typography>
-            <Typography variant='body2' sx={{
-              color: 'rgba(255,255,255,0.8)', textAlign: 'center',
-              mb: 3, fontSize: '0.82rem', lineHeight: 1.6,
-            }}>
-              Winter Log에서 나만의<br />성장 기록을 시작하세요
-            </Typography>
-
-            <Box sx={{
-              width: 148,
-              height: 148,
-              borderRadius: '50%',
-              overflow: 'hidden',
-              bgcolor: 'rgba(255,255,255,0.14)',
-              boxShadow: '0 0 0 8px rgba(255,255,255,0.08), 0 8px 40px rgba(80, 30, 160, 0.45)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>
-              <Box component='img' src={bunnyImg} alt='마스코트'
-                sx={{ width: '90%', height: '90%', objectFit: 'contain' }} />
-            </Box>
-          </Box>
-        )}
-
-        {/* 오른쪽 폼 패널 */}
+        {/* 오른쪽 회원가입 폼 */}
         <Box sx={{
           flex: 1,
           display: 'flex',
@@ -171,23 +107,20 @@ function RegisterPage() {
           justifyContent: 'center',
           p: { xs: 3, md: 4.5 },
           bgcolor: 'background.paper',
-          maxHeight: { xs: 'auto', md: '90vh' },
+          maxHeight: { xs: 'auto', md: '92vh' },
           overflowY: 'auto',
         }}>
+          {/* 모바일 토끼 */}
           {isSmall && (
             <Box sx={{ textAlign: 'center', mb: 2 }}>
               <Box sx={{
-                width: 64,
-                height: 64,
-                borderRadius: '50%',
-                overflow: 'hidden',
+                width: 64, height: 64, borderRadius: '50%', overflow: 'hidden',
                 bgcolor: 'rgba(200,180,245,0.2)',
-                boxShadow: '0 4px 20px rgba(155, 100, 230, 0.35)',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                boxShadow: '0 4px 20px rgba(155,100,230,0.35)',
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
               }}>
-                <Box component='img' src={bunnyImg} alt='마스코트' sx={{ width: '90%', height: '90%', objectFit: 'contain' }} />
+                <Box component='img' src={bunnyImg} alt='마스코트'
+                  sx={{ width: '90%', height: '90%', objectFit: 'contain' }} />
               </Box>
             </Box>
           )}
@@ -226,8 +159,7 @@ function RegisterPage() {
                       <IconButton onClick={() => setShowPassword(!showPassword)} size='small' edge='end'>
                         {showPassword
                           ? <VisibilityOffIcon sx={{ fontSize: 17, color: 'text.disabled' }} />
-                          : <VisibilityIcon sx={{ fontSize: 17, color: 'text.disabled' }} />
-                        }
+                          : <VisibilityIcon sx={{ fontSize: 17, color: 'text.disabled' }} />}
                       </IconButton>
                     </InputAdornment>
                   ),
@@ -274,10 +206,10 @@ function RegisterPage() {
                     sx={{
                       fontSize: '0.72rem',
                       cursor: 'pointer',
-                      bgcolor: selectedCategories.includes(cat) ? 'primary.main' : 'transparent',
-                      color: selectedCategories.includes(cat) ? 'white' : 'text.secondary',
-                      borderColor: selectedCategories.includes(cat) ? 'primary.main' : 'divider',
-                      '&:hover': { bgcolor: selectedCategories.includes(cat) ? 'primary.dark' : 'primary.light' },
+                      bgcolor: selectedCategories.includes(cat) ? '#EED8FF' : 'transparent',
+                      color: selectedCategories.includes(cat) ? '#6030A8' : 'text.secondary',
+                      borderColor: selectedCategories.includes(cat) ? '#C8A8F0' : 'divider',
+                      '&:hover': { bgcolor: selectedCategories.includes(cat) ? '#E4C8FF' : 'rgba(200,180,255,0.12)' },
                     }}
                   />
                 ))}
@@ -285,8 +217,11 @@ function RegisterPage() {
             </Box>
 
             <Button type='submit' variant='contained' fullWidth disabled={loading}
-              sx={{ mt: 0.5, py: 1.25, borderRadius: 3, fontSize: '0.95rem',
-                bgcolor: 'primary.main', color: '#fff', '&:hover': { bgcolor: 'primary.dark' } }}>
+              sx={{
+                mt: 0.5, py: 1.25, borderRadius: 3, fontSize: '0.95rem',
+                bgcolor: '#A898D8', color: '#fff', boxShadow: 'none',
+                '&:hover': { bgcolor: '#9888C8', boxShadow: 'none' },
+              }}>
               {loading ? <CircularProgress size={20} sx={{ color: 'white' }} /> : '회원가입'}
             </Button>
           </Box>

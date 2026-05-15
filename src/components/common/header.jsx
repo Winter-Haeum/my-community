@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
@@ -22,6 +22,9 @@ function Header() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
+  const isLoginPage = location.pathname === '/login';
+  const isRegisterPage = location.pathname === '/register';
 
   const handleMenuOpen = (e) => setAnchorEl(e.currentTarget);
   const handleMenuClose = () => setAnchorEl(null);
@@ -136,14 +139,34 @@ function Header() {
             </Menu>
           </>
         ) : (
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            <Button component={Link} to='/login' size='small' sx={{ color: 'text.secondary' }}>로그인</Button>
+          <Box sx={{ display: 'flex', gap: 0.5 }}>
+            <Button
+              component={Link}
+              to='/login'
+              size='small'
+              sx={{
+                borderRadius: 2.5,
+                px: 1.5,
+                bgcolor: isLoginPage ? '#EED8FF' : 'transparent',
+                color: isLoginPage ? '#6030A8' : 'text.secondary',
+                fontWeight: isLoginPage ? 600 : 400,
+                '&:hover': { bgcolor: isLoginPage ? '#EED8FF' : 'rgba(200,180,255,0.1)' },
+              }}
+            >
+              로그인
+            </Button>
             <Button
               component={Link}
               to='/register'
-              variant='contained'
               size='small'
-              sx={{ bgcolor: 'primary.main', color: 'text.primary' }}
+              sx={{
+                borderRadius: 2.5,
+                px: 1.5,
+                bgcolor: isRegisterPage ? '#EED8FF' : 'transparent',
+                color: isRegisterPage ? '#6030A8' : 'text.secondary',
+                fontWeight: isRegisterPage ? 600 : 400,
+                '&:hover': { bgcolor: isRegisterPage ? '#EED8FF' : 'rgba(200,180,255,0.1)' },
+              }}
             >
               회원가입
             </Button>
