@@ -71,19 +71,27 @@ function PostListPage() {
       const from = (currentPage - 1) * POSTS_PER_PAGE;
       const to = currentPage * POSTS_PER_PAGE - 1;
 
-      let query = supabase
-        .from('winterlog_posts')
-        .select('*, winterlog_users(nickname, profile_image)', { count: 'exact' });
+      const applyFilters = (qb) => {
+        if (category) qb = qb.eq('category', category);
+        if (tag) qb = qb.eq('status_tag', tag);
+        if (q) qb = qb.ilike('title', `%${q}%`);
+        return qb;
+      };
 
-      if (category) query = query.eq('category', category);
-      if (tag) query = query.eq('status_tag', tag);
-      if (q) query = query.ilike('title', `%${q}%`);
+      // 전체 개수 조회 (head request)
+      const countQ = applyFilters(
+        supabase.from('winterlog_posts').select('*', { count: 'exact', head: true })
+      );
 
-      if (sort === 'new') query = query.order('created_at', { ascending: false });
-      else if (sort === 'top') query = query.order('like_count', { ascending: false });
-      else if (sort === 'hot') query = query.order('view_count', { ascending: false });
+      // 페이지 데이터 조회
+      let dataQ = applyFilters(
+        supabase.from('winterlog_posts').select('*, winterlog_users(nickname, profile_image)')
+      );
+      if (sort === 'new') dataQ = dataQ.order('created_at', { ascending: false });
+      else if (sort === 'top') dataQ = dataQ.order('like_count', { ascending: false });
+      else if (sort === 'hot') dataQ = dataQ.order('view_count', { ascending: false });
 
-      const { data, count } = await query.range(from, to);
+      const [{ count }, { data }] = await Promise.all([countQ, dataQ.range(from, to)]);
       setPosts(data || []);
       setTotalCount(count || 0);
     } finally {

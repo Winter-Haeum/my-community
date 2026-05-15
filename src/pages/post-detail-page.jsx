@@ -26,6 +26,7 @@ import { supabase } from '../utils/supabase';
 import useAuthStore from '../store/auth-store';
 
 const ADMIN_EMAIL = 'a01033490494@gmail.com';
+const COMMENTS_PER_PAGE = 5;
 
 const formatDate = (dateStr) => new Date(dateStr).toLocaleString('ko-KR');
 
@@ -130,14 +131,18 @@ function PostDetailPage() {
   const [loading, setLoading] = useState(true);
   const [userReactions, setUserReactions] = useState({ liked: false, bookmarked: false });
   const [error, setError] = useState('');
+  const [commentPage, setCommentPage] = useState(1);
 
   const isAdmin = user?.email?.trim().toLowerCase() === ADMIN_EMAIL.toLowerCase();
   const isAuthor = user && post && user.id === post.user_id;
   const isNotice = post?.category === '공지사항';
   const canEdit = isAuthor || (isAdmin && isNotice);
   const canDelete = isAuthor || isAdmin;
+  const commentTotalPages = Math.ceil(comments.length / COMMENTS_PER_PAGE);
+  const displayedComments = comments.slice((commentPage - 1) * COMMENTS_PER_PAGE, commentPage * COMMENTS_PER_PAGE);
 
   useEffect(() => {
+    setCommentPage(1);
     fetchPost();
     fetchComments();
     if (user) fetchUserReactions();
@@ -175,6 +180,7 @@ function PostDetailPage() {
       })
     );
     setComments(commentsWithReplies);
+    return commentsWithReplies;
   };
 
   const fetchUserReactions = async () => {
@@ -268,7 +274,8 @@ function PostDetailPage() {
     }
 
     setNewComment('');
-    fetchComments();
+    const updated = await fetchComments();
+    setCommentPage(Math.max(1, Math.ceil(updated.length / COMMENTS_PER_PAGE)));
     fetchPost();
   };
 
@@ -441,11 +448,43 @@ function PostDetailPage() {
               첫 번째 댓글을 작성해보세요! 🌱
             </Typography>
           ) : (
-            comments.map((c) => (
+            displayedComments.map((c) => (
               <CommentItem key={c.comment_id} comment={c} postId={id} onRefresh={fetchComments} />
             ))
           )}
         </Box>
+
+        {commentTotalPages > 1 && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 0.75, mt: 2.5 }}>
+            <Button
+              size='small'
+              disabled={commentPage === 1}
+              onClick={() => setCommentPage(commentPage - 1)}
+              sx={{ px: 1.75, height: 34, borderRadius: '999px', border: '1px solid #D8C7F0', color: 'text.secondary', fontSize: '0.8rem', '&:hover': { bgcolor: '#F1E6FF', borderColor: '#C8A8F0' }, '&.Mui-disabled': { borderColor: 'divider', color: 'text.disabled' } }}
+            >이전</Button>
+
+            {Array.from({ length: commentTotalPages }, (_, i) => i + 1).map((p) => (
+              <Button
+                key={p} size='small' onClick={() => setCommentPage(p)}
+                sx={{
+                  minWidth: 34, height: 34, p: 0, borderRadius: '999px',
+                  border: '1px solid', borderColor: commentPage === p ? '#CDB4DB' : '#D8C7F0',
+                  bgcolor: commentPage === p ? '#CDB4DB' : 'transparent',
+                  color: commentPage === p ? '#FFFFFF' : 'text.secondary',
+                  fontSize: '0.85rem', fontWeight: commentPage === p ? 600 : 400,
+                  '&:hover': { bgcolor: commentPage === p ? '#BFA8CF' : '#F1E6FF' },
+                }}
+              >{p}</Button>
+            ))}
+
+            <Button
+              size='small'
+              disabled={commentPage === commentTotalPages}
+              onClick={() => setCommentPage(commentPage + 1)}
+              sx={{ px: 1.75, height: 34, borderRadius: '999px', border: '1px solid #D8C7F0', color: 'text.secondary', fontSize: '0.8rem', '&:hover': { bgcolor: '#F1E6FF', borderColor: '#C8A8F0' }, '&.Mui-disabled': { borderColor: 'divider', color: 'text.disabled' } }}
+            >다음</Button>
+          </Box>
+        )}
       </Paper>
     </Container>
   );
