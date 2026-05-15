@@ -77,7 +77,6 @@ function LoginPage() {
         width: '100%',
         maxWidth: 820,
         height: '100%',
-        maxHeight: 620,
         borderRadius: 4,
         overflow: 'hidden',
         boxShadow: '0 20px 60px rgba(100, 60, 180, 0.22)',
@@ -91,7 +90,7 @@ function LoginPage() {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
-          p: { xs: 3, md: 4 },
+          p: { xs: 3, md: 3.5 },
           bgcolor: 'background.paper',
           overflowY: 'auto',
         }}>
