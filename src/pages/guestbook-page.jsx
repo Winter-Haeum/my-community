@@ -22,6 +22,8 @@ const SUPPORT_MESSAGES = {
   5: '온 마음을 다한 응원 감사합니다 🌙',
 };
 
+const GUESTBOOK_PER_PAGE = 5;
+
 /**
  * StarRating 컴포넌트
  *
@@ -75,6 +77,8 @@ const formatDate = (dateStr) => {
 function GuestbookPage() {
   const { user, profile } = useAuthStore();
   const [entries, setEntries] = useState([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
   const [emoji, setEmoji] = useState('🌱');
@@ -83,19 +87,36 @@ function GuestbookPage() {
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
 
+  const totalPages = Math.ceil(totalCount / GUESTBOOK_PER_PAGE);
+
   useEffect(() => {
-    fetchEntries();
+    fetchEntries(1);
   }, []);
 
-  const fetchEntries = async () => {
+  const fetchEntries = async (currentPage) => {
     setLoading(true);
-    const { data } = await supabase
-      .from('winterlog_guestbook')
-      .select('*, winterlog_users(nickname, profile_image)')
-      .order('created_at', { ascending: false })
-      .limit(50);
-    setEntries(data || []);
-    setLoading(false);
+    try {
+      const from = (currentPage - 1) * GUESTBOOK_PER_PAGE;
+      const to = currentPage * GUESTBOOK_PER_PAGE - 1;
+
+      const [{ count }, { data }] = await Promise.all([
+        supabase.from('winterlog_guestbook').select('*', { count: 'exact', head: true }),
+        supabase.from('winterlog_guestbook')
+          .select('*, winterlog_users(nickname, profile_image)')
+          .order('created_at', { ascending: false })
+          .range(from, to),
+      ]);
+      setEntries(data || []);
+      setTotalCount(count || 0);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+    fetchEntries(newPage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleSubmit = async (e) => {
@@ -119,13 +140,28 @@ function GuestbookPage() {
       setMessage('');
       setEmoji('🌱');
       setStars(3);
-      fetchEntries();
+      setPage(1);
+      fetchEntries(1);
     } catch (err) {
       setError(err.message);
     } finally {
       setSubmitting(false);
     }
   };
+
+  const pageBtnSx = (isActive) => ({
+    minWidth: 36,
+    height: 36,
+    p: 0,
+    borderRadius: '999px',
+    border: '1px solid',
+    borderColor: isActive ? '#CDB4DB' : '#D8C7F0',
+    bgcolor: isActive ? '#CDB4DB' : 'transparent',
+    color: isActive ? '#FFFFFF' : 'text.secondary',
+    fontSize: '0.85rem',
+    fontWeight: isActive ? 600 : 400,
+    '&:hover': { bgcolor: isActive ? '#BFA8CF' : '#F1E6FF', borderColor: isActive ? '#BFA8CF' : '#C8A8F0' },
+  });
 
   return (
     <Container maxWidth='md' sx={{ py: { xs: 3, md: 4 }, px: { xs: 2, md: 3 } }}>
@@ -262,7 +298,7 @@ function GuestbookPage() {
 
       {/* 방명록 목록 */}
       <Typography variant='subtitle2' sx={{ fontWeight: 700, color: 'text.secondary', mb: 1.5 }}>
-        총 {entries.length}개의 응원
+        총 {totalCount}개의 응원
       </Typography>
 
       {loading ? (
@@ -277,44 +313,71 @@ function GuestbookPage() {
           </Typography>
         </Box>
       ) : (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-          {entries.map((entry) => (
-            <Paper key={entry.guestbook_id} elevation={0} sx={{
-              p: 2,
-              borderRadius: 3,
-              bgcolor: 'background.paper',
-              border: '1px solid',
-              borderColor: 'divider',
-              transition: 'box-shadow 0.15s',
-              '&:hover': { boxShadow: '0 4px 16px rgba(155, 100, 220, 0.12)' },
-            }}>
-              <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start' }}>
-                <Typography sx={{ fontSize: '1.9rem', lineHeight: 1, flexShrink: 0, mt: 0.25 }}>
-                  {entry.emoji}
-                </Typography>
-                <Box sx={{ flex: 1, minWidth: 0 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5, flexWrap: 'wrap', gap: 0.5 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                      <Avatar sx={{ width: 22, height: 22, bgcolor: 'primary.main', fontSize: '0.65rem' }}>
-                        {entry.winterlog_users?.nickname?.[0] || '?'}
-                      </Avatar>
-                      <Typography variant='caption' sx={{ fontWeight: 600, color: 'text.primary' }}>
-                        {entry.winterlog_users?.nickname || entry.nickname}
-                      </Typography>
+        <>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            {entries.map((entry) => (
+              <Paper key={entry.guestbook_id} elevation={0} sx={{
+                p: 2,
+                borderRadius: 3,
+                bgcolor: 'background.paper',
+                border: '1px solid',
+                borderColor: 'divider',
+                transition: 'box-shadow 0.15s',
+                '&:hover': { boxShadow: '0 4px 16px rgba(155, 100, 220, 0.12)' },
+              }}>
+                <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start' }}>
+                  <Typography sx={{ fontSize: '1.9rem', lineHeight: 1, flexShrink: 0, mt: 0.25 }}>
+                    {entry.emoji}
+                  </Typography>
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5, flexWrap: 'wrap', gap: 0.5 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                        <Avatar sx={{ width: 22, height: 22, bgcolor: 'primary.main', fontSize: '0.65rem' }}>
+                          {entry.winterlog_users?.nickname?.[0] || '?'}
+                        </Avatar>
+                        <Typography variant='caption' sx={{ fontWeight: 600, color: 'text.primary' }}>
+                          {entry.winterlog_users?.nickname || entry.nickname}
+                        </Typography>
+                      </Box>
+                      <StarRating value={entry.support_stars} readOnly />
                     </Box>
-                    <StarRating value={entry.support_stars} readOnly />
+                    <Typography variant='body2' sx={{ color: 'text.secondary', lineHeight: 1.65, fontSize: '0.85rem', wordBreak: 'break-word' }}>
+                      {entry.message}
+                    </Typography>
+                    <Typography variant='caption' color='text.disabled' sx={{ mt: 0.5, display: 'block' }}>
+                      {formatDate(entry.created_at)}
+                    </Typography>
                   </Box>
-                  <Typography variant='body2' sx={{ color: 'text.secondary', lineHeight: 1.65, fontSize: '0.85rem', wordBreak: 'break-word' }}>
-                    {entry.message}
-                  </Typography>
-                  <Typography variant='caption' color='text.disabled' sx={{ mt: 0.5, display: 'block' }}>
-                    {formatDate(entry.created_at)}
-                  </Typography>
                 </Box>
-              </Box>
-            </Paper>
-          ))}
-        </Box>
+              </Paper>
+            ))}
+          </Box>
+
+          {/* 페이지네이션 */}
+          {totalPages > 1 && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 0.75, mt: 3 }}>
+              <Button
+                size='small'
+                disabled={page === 1}
+                onClick={() => handlePageChange(page - 1)}
+                sx={{ px: 1.75, height: 36, borderRadius: '999px', border: '1px solid #D8C7F0', color: 'text.secondary', fontSize: '0.8rem', '&:hover': { bgcolor: '#F1E6FF', borderColor: '#C8A8F0' }, '&.Mui-disabled': { borderColor: 'divider', color: 'text.disabled' } }}
+              >이전</Button>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                <Button key={p} size='small' onClick={() => handlePageChange(p)} sx={pageBtnSx(page === p)}>
+                  {p}
+                </Button>
+              ))}
+
+              <Button
+                size='small'
+                disabled={page === totalPages}
+                onClick={() => handlePageChange(page + 1)}
+                sx={{ px: 1.75, height: 36, borderRadius: '999px', border: '1px solid #D8C7F0', color: 'text.secondary', fontSize: '0.8rem', '&:hover': { bgcolor: '#F1E6FF', borderColor: '#C8A8F0' }, '&.Mui-disabled': { borderColor: 'divider', color: 'text.disabled' } }}
+              >다음</Button>
+            </Box>
+          )}
+        </>
       )}
     </Container>
   );
