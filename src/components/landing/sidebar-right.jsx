@@ -3,6 +3,7 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import MuiLink from '@mui/material/Link';
 import { Link as RouterLink } from 'react-router-dom';
+import Button from '@mui/material/Button';
 
 const STUDY_QUOTES = [
   '오늘도 천천히 성장하는 중...',
@@ -79,9 +80,27 @@ function SidebarRight({ topPosts = [] }) {
       )}
 
       <Paper elevation={0} sx={{ p: 2, bgcolor: 'background.paper', borderRadius: 3 }}>
-        <Typography variant='subtitle2' sx={{ fontWeight: 700, mb: 1, color: 'primary.main' }}>
-          📌 공지사항
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+          <Typography variant='subtitle2' sx={{ fontWeight: 700, color: 'primary.main' }}>
+            📌 공지사항
+          </Typography>
+          <Button
+            component={RouterLink}
+            to='/?category=공지사항'
+            size='small'
+            sx={{
+              fontSize: '0.72rem',
+              color: 'text.disabled',
+              minWidth: 'auto',
+              px: 0.75,
+              py: 0.25,
+              lineHeight: 1.5,
+              '&:hover': { color: 'primary.main', bgcolor: 'transparent' },
+            }}
+          >
+            더보기
+          </Button>
+        </Box>
         <Box component='ul' sx={{ m: 0, pl: 2.5 }}>
           {['서로 존중하는 커뮤니티를 만들어요', '공부 기록을 자유롭게 공유해요', '질문은 언제든지 환영합니다 🙌'].map((text) => (
             <Typography key={text} component='li' variant='body2' color='text.secondary' sx={{ fontSize: '0.8rem', lineHeight: 1.8 }}>

@@ -9,6 +9,7 @@ import ListItemText from '@mui/material/ListItemText';
 
 const CATEGORIES = [
   { label: '전체', value: '' },
+  { label: '공지사항', value: '공지사항' },
   { label: '프론트엔드', value: '프론트엔드' },
   { label: 'JavaScript', value: 'JavaScript' },
   { label: 'React', value: 'React' },

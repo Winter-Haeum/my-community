@@ -5,11 +5,25 @@ function AuthLeftPanel() {
   return (
     <Box sx={{
       flex: '0 0 48%',
-      backgroundImage: `url(${authBgImg})`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      backgroundRepeat: 'no-repeat',
-    }} />
+      bgcolor: '#8B78C0',
+      overflow: 'hidden',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}>
+      <Box
+        component='img'
+        src={authBgImg}
+        alt=''
+        sx={{
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          objectPosition: 'center center',
+          display: 'block',
+        }}
+      />
+    </Box>
   );
 }
 
