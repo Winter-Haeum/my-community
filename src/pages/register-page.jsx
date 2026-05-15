@@ -82,16 +82,17 @@ function RegisterPage() {
 
   return (
     <Box sx={{
-      minHeight: '100vh',
+      height: { xs: 'calc(100vh - 56px)', md: 'calc(100vh - 64px)' },
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      p: { xs: 2, md: 3 },
+      p: { xs: 1.5, md: 2 },
     }}>
       <Paper elevation={0} sx={{
         display: 'flex',
         width: '100%',
         maxWidth: 820,
+        height: '100%',
         borderRadius: 4,
         overflow: 'hidden',
         boxShadow: '0 20px 60px rgba(100, 60, 180, 0.22)',
@@ -105,27 +106,26 @@ function RegisterPage() {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
-          p: { xs: 3, md: 4.5 },
+          p: { xs: 3, md: 3.5 },
           bgcolor: 'background.paper',
-          maxHeight: { xs: 'auto', md: '92vh' },
           overflowY: 'auto',
         }}>
           {/* 모바일 토끼 */}
           {isSmall && (
-            <Box sx={{ textAlign: 'center', mb: 2 }}>
+            <Box sx={{ textAlign: 'center', mb: 1.5 }}>
               <Box component='img' src={bunnyImg} alt='마스코트'
-                sx={{ width: 80, height: 80, objectFit: 'contain' }} />
+                sx={{ width: 68, height: 68, objectFit: 'contain' }} />
             </Box>
           )}
 
-          <Typography variant='h5' sx={{ fontWeight: 700, mb: 2.5, fontSize: '1.4rem' }}>
+          <Typography variant='h5' sx={{ fontWeight: 700, mb: 1.5, fontSize: '1.3rem' }}>
             회원가입
           </Typography>
 
-          {error && <Alert severity='error' sx={{ mb: 2, borderRadius: 2 }}>{error}</Alert>}
-          {success && <Alert severity='success' sx={{ mb: 2, borderRadius: 2 }}>{success}</Alert>}
+          {error && <Alert severity='error' sx={{ mb: 1.25, borderRadius: 2 }}>{error}</Alert>}
+          {success && <Alert severity='success' sx={{ mb: 1.25, borderRadius: 2 }}>{success}</Alert>}
 
-          <Box component='form' onSubmit={handleRegister} sx={{ display: 'flex', flexDirection: 'column', gap: 1.75 }}>
+          <Box component='form' onSubmit={handleRegister} sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
             <Box>
               <Typography variant='caption' sx={{ color: 'text.secondary', fontWeight: 500, mb: 0.75, display: 'block' }}>이메일</Typography>
               <TextField type='email' value={form.email} onChange={handleChange('email')}
@@ -188,7 +188,7 @@ function RegisterPage() {
             </Box>
 
             <Box>
-              <Typography variant='caption' sx={{ color: 'text.secondary', fontWeight: 500, mb: 1, display: 'block' }}>
+              <Typography variant='caption' sx={{ color: 'text.secondary', fontWeight: 500, mb: 0.75, display: 'block' }}>
                 관심 카테고리 <Typography component='span' variant='caption' color='text.disabled'>(선택)</Typography>
               </Typography>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
@@ -219,7 +219,7 @@ function RegisterPage() {
             </Button>
           </Box>
 
-          <Typography variant='body2' color='text.disabled' sx={{ textAlign: 'center', mt: 2.5, fontSize: '0.8rem' }}>
+          <Typography variant='body2' color='text.disabled' sx={{ textAlign: 'center', mt: 1.5, fontSize: '0.8rem' }}>
             이미 계정이 있으신가요?{' '}
             <Link to='/login' style={{ color: '#9B82CC', fontWeight: 600, textDecoration: 'none' }}>
               로그인

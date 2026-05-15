@@ -66,17 +66,18 @@ function LoginPage() {
 
   return (
     <Box sx={{
-      minHeight: '100vh',
+      height: { xs: 'calc(100vh - 56px)', md: 'calc(100vh - 64px)' },
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      p: { xs: 2, md: 3 },
+      p: { xs: 1.5, md: 2 },
     }}>
       <Paper elevation={0} sx={{
         display: 'flex',
         width: '100%',
         maxWidth: 820,
-        minHeight: { xs: 'auto', md: 540 },
+        height: '100%',
+        maxHeight: 620,
         borderRadius: 4,
         overflow: 'hidden',
         boxShadow: '0 20px 60px rgba(100, 60, 180, 0.22)',
@@ -90,28 +91,29 @@ function LoginPage() {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
-          p: { xs: 3, md: 5 },
+          p: { xs: 3, md: 4 },
           bgcolor: 'background.paper',
+          overflowY: 'auto',
         }}>
           {/* 모바일 토끼 */}
           {isSmall && (
-            <Box sx={{ textAlign: 'center', mb: 3 }}>
+            <Box sx={{ textAlign: 'center', mb: 2 }}>
               <Box component='img' src={bunnyImg} alt='마스코트'
-                sx={{ width: 88, height: 88, objectFit: 'contain' }} />
+                sx={{ width: 72, height: 72, objectFit: 'contain' }} />
             </Box>
           )}
 
-          <Typography variant='h5' sx={{ fontWeight: 700, mb: 3, color: 'text.primary', fontSize: '1.5rem' }}>
+          <Typography variant='h5' sx={{ fontWeight: 700, mb: 2, color: 'text.primary', fontSize: '1.4rem' }}>
             로그인
           </Typography>
 
           {error && (
-            <Alert severity='error' sx={{ mb: 2, borderRadius: 2, border: '1px solid #FFCDD2' }}>
+            <Alert severity='error' sx={{ mb: 1.5, borderRadius: 2, border: '1px solid #FFCDD2' }}>
               {error}
             </Alert>
           )}
 
-          <Box component='form' onSubmit={handleLogin} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Box component='form' onSubmit={handleLogin} sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
             <Box>
               <Typography variant='caption' sx={{ color: 'text.secondary', fontWeight: 500, mb: 0.75, display: 'block' }}>
                 이메일
@@ -167,7 +169,7 @@ function LoginPage() {
             </Button>
           </Box>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', my: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', my: 1.5 }}>
             <Box sx={{ flex: 1, height: '1px', bgcolor: 'divider' }} />
             <Typography variant='caption' sx={{ px: 1.5, color: 'text.disabled' }}>또는</Typography>
             <Box sx={{ flex: 1, height: '1px', bgcolor: 'divider' }} />
@@ -187,7 +189,7 @@ function LoginPage() {
             Google로 로그인
           </Button>
 
-          <Typography variant='body2' color='text.disabled' sx={{ textAlign: 'center', mt: 2.5, fontSize: '0.8rem' }}>
+          <Typography variant='body2' color='text.disabled' sx={{ textAlign: 'center', mt: 1.5, fontSize: '0.8rem' }}>
             계정이 없으신가요?{' '}
             <Link to='/register' style={{ color: '#9B82CC', fontWeight: 600, textDecoration: 'none' }}>
               회원가입
