@@ -24,6 +24,7 @@ function LoginPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { setUser, setProfile, themeMode } = useAuthStore();
@@ -49,6 +50,8 @@ function LoginPage() {
       setError(
         err.message === 'Invalid login credentials'
           ? '이메일 또는 비밀번호가 올바르지 않습니다.'
+          : err.message === 'Email not confirmed'
+          ? '이메일 인증이 아직 처리 중입니다. 잠시 후 다시 시도해주세요.'
           : err.message
       );
     } finally {
@@ -57,23 +60,33 @@ function LoginPage() {
   };
 
   const handleGoogleLogin = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: window.location.origin },
-    });
+    setGoogleLoading(true);
+    setError('');
+    try {
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: 'https://winter-haeum.github.io/my-community/',
+        },
+      });
+      if (oauthError) throw oauthError;
+    } catch (err) {
+      setError('Google 로그인에 실패했습니다. Supabase Google 인증 설정을 확인해주세요.');
+      setGoogleLoading(false);
+    }
   };
 
   const inputSx = {
     '& .MuiOutlinedInput-root': {
       borderRadius: 2,
-      bgcolor: isDark ? '#FFFFFF' : '#FAFAFE',
+      bgcolor: isDark ? '#2D1F4E' : '#FAFAFE',
       '& fieldset': { borderColor: isDark ? '#B9A7E6' : undefined },
       '&:hover fieldset': { borderColor: isDark ? '#9B7FD4' : undefined },
     },
     '& .MuiInputBase-input': {
-      color: isDark ? '#2A1B4A' : undefined,
+      color: isDark ? '#FFFFFF' : '#1F1638',
       '&::placeholder': {
-        color: isDark ? '#9B8FC0' : '#C4BCD9',
+        color: isDark ? '#AFA6C8' : '#AFAFC0',
         opacity: 1,
       },
     },
@@ -192,15 +205,16 @@ function LoginPage() {
           <Button
             variant='outlined'
             fullWidth
-            startIcon={<GoogleIcon sx={{ fontSize: 18 }} />}
+            startIcon={googleLoading ? <CircularProgress size={16} /> : <GoogleIcon sx={{ fontSize: 18 }} />}
             onClick={handleGoogleLogin}
+            disabled={googleLoading}
             sx={{
               py: 1.1, borderRadius: 3,
               borderColor: 'divider', color: 'text.secondary', fontSize: '0.875rem',
               '&:hover': { borderColor: 'primary.light', bgcolor: '#F8F4FF' },
             }}
           >
-            Google로 로그인
+            {googleLoading ? '연결 중...' : 'Google로 로그인'}
           </Button>
 
           <Typography variant='body2' color='text.disabled' sx={{ textAlign: 'center', mt: 1.5, fontSize: '0.8rem' }}>

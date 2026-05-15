@@ -72,7 +72,7 @@ function RegisterPage() {
         },
       });
       if (authError) throw authError;
-      setSuccess('회원가입이 완료되었습니다! 이메일을 확인해주세요.');
+      setSuccess('회원가입이 완료되었습니다! 바로 로그인 가능합니다.');
       setTimeout(() => navigate('/login'), 2500);
     } catch (err) {
       setError(err.message);
@@ -84,14 +84,14 @@ function RegisterPage() {
   const inputSx = {
     '& .MuiOutlinedInput-root': {
       borderRadius: 2,
-      bgcolor: isDark ? '#FFFFFF' : '#FAFAFE',
+      bgcolor: isDark ? '#2D1F4E' : '#FAFAFE',
       '& fieldset': { borderColor: isDark ? '#B9A7E6' : undefined },
       '&:hover fieldset': { borderColor: isDark ? '#9B7FD4' : undefined },
     },
     '& .MuiInputBase-input': {
-      color: isDark ? '#2A1B4A' : undefined,
+      color: isDark ? '#FFFFFF' : '#1F1638',
       '&::placeholder': {
-        color: isDark ? '#9B8FC0' : '#C4BCD9',
+        color: isDark ? '#AFA6C8' : '#AFAFC0',
         opacity: 1,
       },
     },
