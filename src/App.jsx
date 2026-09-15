@@ -14,8 +14,8 @@ import PostDetailPage from './pages/post-detail-page';
 import PostWritePage from './pages/post-write-page';
 import MyPage from './pages/my-page';
 import GuestbookPage from './pages/guestbook-page';
-import bgLight from './assets/bg-light.png';
-import bgDark from './assets/bg-dark.png';
+import bgLight from './assets/bg-light.webp';
+import bgDark from './assets/bg-dark.webp';
 
 function AppRoutes() {
   useAuth();

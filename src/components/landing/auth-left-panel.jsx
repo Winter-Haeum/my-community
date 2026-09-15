@@ -1,5 +1,5 @@
 import Box from '@mui/material/Box';
-import authBgImg from '../../assets/auth-bg.png';
+import authBgImg from '../../assets/auth-bg.webp';
 
 function AuthLeftPanel() {
   return (

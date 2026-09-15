@@ -16,7 +16,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import GoogleIcon from '@mui/icons-material/Google';
 import AuthLeftPanel from '../components/landing/auth-left-panel';
-import bunnyImg from '../assets/bunny.png';
+import bunnyImg from '../assets/bunny.webp';
 import { supabase } from '../utils/supabase';
 import useAuthStore from '../store/auth-store';
 
