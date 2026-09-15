@@ -102,7 +102,7 @@ function PostCard({ post, onLike }) {
           fontSize: '0.85rem',
           lineHeight: 1.6,
         }}>
-          {post.content?.replace(/[#*`>\[\]!]/g, '')}
+          {post.content?.replace(/[#*`>[\]!]/g, '')}
         </Typography>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>

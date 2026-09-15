@@ -22,5 +22,7 @@ export function useAuth() {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  // setUser/setProfile/signOut는 Zustand action으로 참조가 항상 안정적이라
+  // 추가해도 재구독을 유발하지 않는다.
+  }, [setUser, setProfile, signOut]);
 }

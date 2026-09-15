@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import bunnyImg from '../assets/bunny.png';
 import Box from '@mui/material/Box';
@@ -66,16 +66,7 @@ function PostListPage() {
 
   const totalPages = Math.ceil(totalCount / POSTS_PER_PAGE);
 
-  useEffect(() => {
-    setPage(1);
-    fetchPosts(1);
-  }, [sort, category, tag, q]);
-
-  useEffect(() => {
-    fetchTopPosts();
-  }, []);
-
-  const fetchPosts = async (currentPage) => {
+  const fetchPosts = useCallback(async (currentPage) => {
     const reqId = ++reqIdRef.current;
     setLoading(true);
     setFetchError(false);
@@ -134,16 +125,36 @@ function PostListPage() {
         setLoading(false);
       }
     }
-  };
+  }, [category, tag, q, sort]);
 
-  const fetchTopPosts = async () => {
-    const { data } = await supabase
+  // 필터(정렬/카테고리/태그/검색어)가 바뀌면 렌더링 중에 즉시 1페이지로 되돌린다
+  // (effect 안에서 setState를 동기 호출하지 않기 위한 패턴 — project-detail-page와 동일).
+  const filterKey = `${sort}|${category}|${tag}|${q}`;
+  const [resolvedFilterKey, setResolvedFilterKey] = useState(filterKey);
+  if (filterKey !== resolvedFilterKey) {
+    setResolvedFilterKey(filterKey);
+    setPage(1);
+  }
+
+  useEffect(() => {
+    // fetchPosts는 handlePageChange에서도 재사용되는 함수라 내부 로직을 여기 중복
+    // 작성하지 않는다. 대신 마이크로태스크로 감싸 호출해, setState가 effect의 동기 실행
+    // 프레임이 아니라 비동기 콜백에서 일어나도록 한다.
+    Promise.resolve().then(() => {
+      fetchPosts(1);
+    });
+  }, [fetchPosts]);
+
+  // 인기글 사이드바 — 이 effect에서만 쓰이므로 별도 함수로 분리하지 않고
+  // then() 콜백(비동기 시점)에서만 setState 한다.
+  useEffect(() => {
+    supabase
       .from('winterlog_posts')
       .select('post_id, title')
       .order('like_count', { ascending: false })
-      .limit(5);
-    setTopPosts(data || []);
-  };
+      .limit(5)
+      .then(({ data }) => setTopPosts(data || []));
+  }, []);
 
   const handlePageChange = (newPage) => {
     setPage(newPage);

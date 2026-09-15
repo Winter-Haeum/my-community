@@ -89,10 +89,26 @@ function GuestbookPage() {
 
   const totalPages = Math.ceil(totalCount / GUESTBOOK_PER_PAGE);
 
+  // 최초 로드 — effect 안에서 직접 Promise 체인을 사용해 setState가 항상 then() 콜백
+  // (비동기 시점)에서만 호출되도록 한다.
   useEffect(() => {
-    fetchEntries(1);
+    const from = 0;
+    const to = GUESTBOOK_PER_PAGE - 1;
+
+    Promise.all([
+      supabase.from('winterlog_guestbook').select('*', { count: 'exact', head: true }),
+      supabase.from('winterlog_guestbook')
+        .select('*, winterlog_users(nickname, profile_image)')
+        .order('created_at', { ascending: false })
+        .range(from, to),
+    ]).then(([{ count }, { data }]) => {
+      setEntries(data || []);
+      setTotalCount(count || 0);
+      setLoading(false);
+    });
   }, []);
 
+  // 페이지 이동/작성 후 재조회 — 이벤트 핸들러에서 호출되므로 로딩 표시를 다시 켠다.
   const fetchEntries = async (currentPage) => {
     setLoading(true);
     try {

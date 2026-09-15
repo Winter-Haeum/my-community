@@ -67,25 +67,24 @@ function MyPage() {
   const today = new Date().toISOString().split('T')[0];
   const monthDates = getMonthDates();
 
+  // effect 안에서 직접 Promise 체인을 사용해 setState가 항상 then() 콜백(비동기 시점)에서만
+  // 호출되도록 한다. 이 조회는 이 effect에서만 쓰이므로 별도 함수로 분리하지 않는다.
   useEffect(() => {
-    if (user) fetchData();
-  }, [user]);
-
-  const fetchData = async () => {
-    setLoading(true);
-    const [logsRes, todosRes, postsRes, todayLogRes] = await Promise.all([
+    if (!user) return;
+    Promise.all([
       supabase.from('winterlog_study_logs').select('study_date').eq('user_id', user.id),
       supabase.from('winterlog_todos').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
       supabase.from('winterlog_posts').select('post_id, title, created_at, like_count, category')
         .eq('user_id', user.id).order('created_at', { ascending: false }).limit(5),
       supabase.from('winterlog_study_logs').select('goal').eq('user_id', user.id).eq('study_date', today).single(),
-    ]);
-    setStudyLogs(logsRes.data?.map((l) => l.study_date) || []);
-    setTodos(todosRes.data || []);
-    setRecentPosts(postsRes.data || []);
-    setTodayGoal(todayLogRes.data?.goal || '');
-    setLoading(false);
-  };
+    ]).then(([logsRes, todosRes, postsRes, todayLogRes]) => {
+      setStudyLogs(logsRes.data?.map((l) => l.study_date) || []);
+      setTodos(todosRes.data || []);
+      setRecentPosts(postsRes.data || []);
+      setTodayGoal(todayLogRes.data?.goal || '');
+      setLoading(false);
+    });
+  }, [user, today]);
 
   /* ─── 프로필 수정 ─── */
   const handleStartEdit = () => {

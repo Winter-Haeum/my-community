@@ -1,11 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
-import Divider from '@mui/material/Divider';
 import Alert from '@mui/material/Alert';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -22,22 +21,16 @@ import { supabase } from '../utils/supabase';
 import useAuthStore from '../store/auth-store';
 
 function LoginPage() {
-  const [email, setEmail] = useState('');
+  // 최초 렌더링에서 localStorage 값으로 바로 초기화 — effect에서 setState할 필요가 없어짐
+  const [email, setEmail] = useState(() => localStorage.getItem('winterlog_remembered_email') || '');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState('');
-  const [rememberEmail, setRememberEmail] = useState(false);
+  const [rememberEmail, setRememberEmail] = useState(() => Boolean(localStorage.getItem('winterlog_remembered_email')));
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const saved = localStorage.getItem('winterlog_remembered_email');
-    if (saved) {
-      setEmail(saved);
-      setRememberEmail(true);
-    }
-  }, []);
   const { setUser, setProfile, themeMode } = useAuthStore();
   const isDark = themeMode === 'dark';
   const isSmall = useMediaQuery('(max-width:700px)');
@@ -86,7 +79,7 @@ function LoginPage() {
         },
       });
       if (oauthError) throw oauthError;
-    } catch (err) {
+    } catch {
       setError('Google 로그인에 실패했습니다. Supabase Google 인증 설정을 확인해주세요.');
       setGoogleLoading(false);
     }

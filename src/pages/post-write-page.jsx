@@ -19,7 +19,8 @@ import remarkGfm from 'remark-gfm';
 import { supabase } from '../utils/supabase';
 import useAuthStore from '../store/auth-store';
 
-const ADMIN_EMAIL = 'a01033490494@gmail.com';
+// 관리자 UUID — secret 아님(UI 표시/흐름 제어용). 실제 보안 경계는 Supabase RLS.
+const ADMIN_USER_ID = '23efe695-6062-48bc-bc1c-d1f45f1bdbfa';
 const BASE_CATEGORIES = ['프론트엔드', 'JavaScript', 'React', 'AI 활용', '오류 해결 기록', '포트폴리오 피드백', '일상 공부 기록', '자유 게시판'];
 const STATUS_TAGS = ['공부중', '질문', '해결완료', '회고', '팁공유'];
 
@@ -48,15 +49,22 @@ function PostWritePage() {
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(isEdit);
   const [error, setError] = useState('');
+  const [resolvedEditId, setResolvedEditId] = useState(isEdit ? id : null);
   const navigate = useNavigate();
   const { user, profile, setProfile } = useAuthStore();
 
-  const isAdmin = user?.email === ADMIN_EMAIL;
+  const isAdmin = user?.id === ADMIN_USER_ID;
   const CATEGORIES = isAdmin ? ['공지사항', ...BASE_CATEGORIES] : BASE_CATEGORIES;
+
+  // id가 바뀔 때(수정 글 전환) 렌더링 중에 즉시 로딩 상태로 전환한다
+  // (effect 안에서 setState를 동기 호출하지 않기 위한 패턴).
+  if (isEdit && id !== resolvedEditId) {
+    setResolvedEditId(id);
+    setFetchLoading(true);
+  }
 
   useEffect(() => {
     if (!isEdit) return;
-    setFetchLoading(true);
     supabase
       .from('winterlog_posts')
       .select('*')

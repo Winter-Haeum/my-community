@@ -1,11 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
 import TextField from '@mui/material/TextField';
 import Chip from '@mui/material/Chip';
 import Avatar from '@mui/material/Avatar';
@@ -25,7 +24,8 @@ import remarkGfm from 'remark-gfm';
 import { supabase } from '../utils/supabase';
 import useAuthStore from '../store/auth-store';
 
-const ADMIN_EMAIL = 'a01033490494@gmail.com';
+// 관리자 UUID — secret 아님(UI 표시/흐름 제어용). 실제 보안 경계는 Supabase RLS.
+const ADMIN_USER_ID = '23efe695-6062-48bc-bc1c-d1f45f1bdbfa';
 const COMMENTS_PER_PAGE = 5;
 
 const formatDate = (dateStr) => new Date(dateStr).toLocaleString('ko-KR');
@@ -133,7 +133,7 @@ function PostDetailPage() {
   const [error, setError] = useState('');
   const [commentPage, setCommentPage] = useState(1);
 
-  const isAdmin = user?.email?.trim().toLowerCase() === ADMIN_EMAIL.toLowerCase();
+  const isAdmin = user?.id === ADMIN_USER_ID;
   const isAuthor = user && post && user.id === post.user_id;
   const isNotice = post?.category === '공지사항';
   const canEdit = isAuthor || (isAdmin && isNotice);
@@ -141,14 +141,7 @@ function PostDetailPage() {
   const commentTotalPages = Math.ceil(comments.length / COMMENTS_PER_PAGE);
   const displayedComments = comments.slice((commentPage - 1) * COMMENTS_PER_PAGE, commentPage * COMMENTS_PER_PAGE);
 
-  useEffect(() => {
-    setCommentPage(1);
-    fetchPost();
-    fetchComments();
-    if (user) fetchUserReactions();
-  }, [id, user]);
-
-  const fetchPost = async () => {
+  const fetchPost = useCallback(async () => {
     const { data } = await supabase
       .from('winterlog_posts')
       .select('*, winterlog_users(nickname, profile_image)')
@@ -159,9 +152,9 @@ function PostDetailPage() {
     if (data) {
       supabase.rpc('increment_view_count', { p_post_id: id });
     }
-  };
+  }, [id]);
 
-  const fetchComments = async () => {
+  const fetchComments = useCallback(async () => {
     const { data: roots } = await supabase
       .from('winterlog_comments')
       .select('*, winterlog_users(nickname, profile_image)')
@@ -181,9 +174,9 @@ function PostDetailPage() {
     );
     setComments(commentsWithReplies);
     return commentsWithReplies;
-  };
+  }, [id]);
 
-  const fetchUserReactions = async () => {
+  const fetchUserReactions = useCallback(async () => {
     if (!user) return;
     const { data: reactions } = await supabase
       .from('winterlog_post_reactions')
@@ -203,7 +196,28 @@ function PostDetailPage() {
       liked: types.includes('like'),
       bookmarked: !!bm,
     });
-  };
+  }, [id, user]);
+
+  // 게시글(id) 또는 로그인 사용자가 바뀌면 렌더링 중에 즉시 댓글 페이지를 1로 되돌린다
+  // (effect 안에서 setState를 동기 호출하지 않기 위한 패턴).
+  const [resolvedId, setResolvedId] = useState(id);
+  const [resolvedUser, setResolvedUser] = useState(user);
+  if (id !== resolvedId || user !== resolvedUser) {
+    setResolvedId(id);
+    setResolvedUser(user);
+    setCommentPage(1);
+  }
+
+  useEffect(() => {
+    // fetchPost/fetchComments/fetchUserReactions는 다른 이벤트 핸들러에서도 재사용되는
+    // 함수라 내부 로직을 여기 중복 작성하지 않는다. 대신 마이크로태스크로 감싸 호출해,
+    // setState가 effect의 동기 실행 프레임이 아니라 비동기 콜백에서 일어나도록 한다.
+    Promise.resolve().then(() => {
+      fetchPost();
+      fetchComments();
+      if (user) fetchUserReactions();
+    });
+  }, [id, user, fetchPost, fetchComments, fetchUserReactions]);
 
   const handleReaction = async (type) => {
     if (!user) return navigate('/login');
